@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>High Demand Products</title>
+
+    <style>
+
+        /* =========================================
+           RESET
+        ========================================= */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family:
+                "Segoe UI",
+                Arial,
+                sans-serif;
+            background: #f5f5f5;
+            color: #1c1c1c;
+        }
+
+
+        /* =========================================
+           MAIN CONTAINER
+        ========================================= */
+
+        .demand-products {
+            width: 100%;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+
+        /* =========================================
+           HERO / SLIDER
+        ========================================= */
+
+        .demand-slider {
+            position: relative;
+            width: 100%;
+            min-height: 680px;
+            overflow: hidden;
+
+            background:
+                radial-gradient(
+                    circle at 80% 30%,
+                    rgba(212, 175, 55, 0.10),
+                    transparent 35%
+                ),
+                linear-gradient(
+                    135deg,
+                    #ffffff 0%,
+                    #faf8f3 100%
+                );
+        }
+
+
+        /* =========================================
+           DECORATIVE BACKGROUND
+        ========================================= */
+
+        .background-circle {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+
+            right: -180px;
+            top: -150px;
+
+            border-radius: 50%;
+
+            border: 1px solid
+                rgba(184, 146, 52, 0.15);
+
+            z-index: 0;
+        }
+
+        .background-circle::after {
+            content: "";
+
+            position: absolute;
+
+            width: 350px;
+            height: 350px;
+
+            right: 70px;
+            top: 70px;
+
+            border-radius: 50%;
+
+            border: 1px solid
+                rgba(184, 146, 52, 0.12);
+        }
+
+
+        /* =========================================
+           SLIDE
+        ========================================= */
+
+        .demand-slide {
+            position: absolute;
+
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            opacity: 0;
+            visibility: hidden;
+
+            transition:
+                opacity 0.7s ease,
+                visibility 0.7s ease;
+        }
+
+        .demand-slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+
+        /* =========================================
+           LEFT CONTENT
+        ========================================= */
+
+        .product-content {
+            position: absolute;
+
+            left: 8%;
+
+            top: 50%;
+
+            transform:
+                translateY(-50%)
+                translateX(-40px);
+
+            width: 38%;
+
+            opacity: 0;
+
+            transition:
+                opacity 0.8s ease 0.2s,
+                transform 0.8s ease 0.2s;
+
+            z-index: 5;
+        }
+
+        .demand-slide.active .product-content {
+            opacity: 1;
+
+            transform:
+                translateY(-50%)
+                translateX(0);
+        }
+
+
+        /* =========================================
+           BADGE
+        ========================================= */
+
+        .demand-badge {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 8px 15px;
+
+            margin-bottom: 20px;
+
+            border-radius: 30px;
+
+            background: #1d1d1d;
+
+            color: #ffffff;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            letter-spacing: 1.5px;
+
+            text-transform: uppercase;
+        }
+
+        .demand-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: #d4af37;
+
+            box-shadow:
+                0 0 0 4px
+                rgba(212,175,55,0.15);
+        }
+
+
+        /* =========================================
+           CATEGORY
+        ========================================= */
+
+        .product-category {
+            margin-bottom: 10px;
+
+            color: #a17b24;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            letter-spacing: 2px;
+
+            text-transform: uppercase;
+        }
+
+
+        /* =========================================
+           TITLE
+        ========================================= */
+
+        .product-title {
+            font-size: clamp(
+                38px,
+                4.2vw,
+                68px
+            );
+
+            line-height: 1.05;
+
+            font-weight: 700;
+
+            letter-spacing: -2px;
+
+            color: #171717;
+
+            margin-bottom: 20px;
+        }
+
+
+        /* =========================================
+           DESCRIPTION
+        ========================================= */
+
+        .product-description {
+            max-width: 500px;
+
+            color: #666666;
+
+            font-size: 16px;
+
+            line-height: 1.8;
+
+            margin-bottom: 25px;
+        }
+
+
+        /* =========================================
+           PRICE
+        ========================================= */
+
+        .product-price {
+            display: flex;
+
+            align-items: center;
+
+            gap: 14px;
+
+            margin-bottom: 25px;
+        }
+
+        .current-price {
+            color: #171717;
+
+            font-size: 30px;
+
+            font-weight: 700;
+        }
+
+        .old-price {
+            color: #999999;
+
+            font-size: 18px;
+
+            text-decoration: line-through;
+        }
+
+        .discount {
+            padding: 6px 10px;
+
+            background: #f1e5bd;
+
+            color: #795c16;
+
+            border-radius: 4px;
+
+            font-size: 12px;
+
+            font-weight: 700;
+        }
+
+
+        /* =========================================
+           SHOP BUTTON
+        ========================================= */
+
+        .shop-button {
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 12px;
+
+            padding: 15px 28px;
+
+            border: none;
+
+            border-radius: 4px;
+
+            background: #1c1c1c;
+
+            color: #ffffff;
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            letter-spacing: 0.5px;
+
+            transition:
+                transform 0.3s ease,
+                background 0.3s ease,
+                box-shadow 0.3s ease;
+        }
+
+        .shop-button:hover {
+            background: #a17b24;
+
+            transform:
+                translateY(-3px);
+
+            box-shadow:
+                0 10px 25px
+                rgba(0,0,0,0.15);
+
+            color: #ffffff;
+        }
+
+        .shop-arrow {
+            font-size: 18px;
+
+            transition:
+                transform 0.3s ease;
+        }
+
+        .shop-button:hover .shop-arrow {
+            transform:
+                translateX(5px);
+        }
+
+
+        /* =========================================
+           PRODUCT IMAGE AREA
+        ========================================= */
+
+        .product-image-area {
+            position: absolute;
+
+            right: 5%;
+
+            top: 50%;
+
+            transform:
+                translateY(-50%)
+                translateX(40px);
+
+            width: 50%;
+
+            height: 570px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            opacity: 0;
+
+            transition:
+                opacity 0.9s ease 0.15s,
+                transform 0.9s ease 0.15s;
+
+            z-index: 2;
+        }
+
+        .demand-slide.active .product-image-area {
+            opacity: 1;
+
+            transform:
+                translateY(-50%)
+                translateX(0);
+        }
+
+
+        /* =========================================
+           IMAGE CIRCLE
+        ========================================= */
+
+        .product-image-circle {
+            position: absolute;
+
+            width: 470px;
+            height: 470px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    #ffffff 0%,
+                    #f4eee1 70%,
+                    #e9dfc8 100%
+                );
+
+            box-shadow:
+                0 25px 60px
+                rgba(0,0,0,0.08);
+        }
+
+
+        /* =========================================
+           PRODUCT IMAGE
+        ========================================= */
+
+        .product-image {
+            position: relative;
+
+            z-index: 2;
+
+            width: 520px;
+
+            max-width: 90%;
+
+            max-height: 500px;
+
+            object-fit: contain;
+
+            filter:
+                drop-shadow(
+                    0 25px 25px
+                    rgba(0,0,0,0.16)
+                );
+
+            animation:
+                productFloat 4s ease-in-out
+                infinite;
+        }
+
+
+        @keyframes productFloat {
+
+            0% {
+                transform:
+                    translateY(0);
+            }
+
+            50% {
+                transform:
+                    translateY(-10px);
+            }
+
+            100% {
+                transform:
+                    translateY(0);
+            }
+
+        }
+
+
+        /* =========================================
+           SLIDER ARROWS
+        ========================================= */
+
+        .slider-controls {
+            position: absolute;
+
+            right: 5%;
+
+            top: 50%;
+
+            transform:
+                translateY(-50%);
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 12px;
+
+            z-index: 10;
+        }
+
+        .slider-arrow {
+            width: 48px;
+            height: 48px;
+
+            border-radius: 50%;
+
+            border: 1px solid
+                rgba(0,0,0,0.12);
+
+            background:
+                rgba(255,255,255,0.95);
+
+            color: #222;
+
+            font-size: 20px;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            transition:
+                all 0.3s ease;
+
+            box-shadow:
+                0 5px 20px
+                rgba(0,0,0,0.08);
+        }
+
+        .slider-arrow:hover {
+            background: #1c1c1c;
+
+            color: #ffffff;
+
+            transform:
+                scale(1.08);
+        }
+
+
+        /* =========================================
+           SLIDE NUMBER
+        ========================================= */
+
+        .slide-number {
+            position: absolute;
+
+            left: 8%;
+
+            bottom: 75px;
+
+            z-index: 5;
+
+            color: #999999;
+
+            font-size: 13px;
+
+            letter-spacing: 2px;
+        }
+
+        .slide-number strong {
+            color: #222;
+
+            font-size: 18px;
+        }
+
+
+        /* =========================================
+           PROGRESS LINE
+        ========================================= */
+
+        .progress-container {
+            position: absolute;
+
+            left: 8%;
+
+            bottom: 50px;
+
+            width: 35%;
+
+            height: 2px;
+
+            background:
+                rgba(0,0,0,0.10);
+
+            z-index: 10;
+        }
+
+        .progress-bar {
+            width: 0%;
+
+            height: 100%;
+
+            background: #a17b24;
+
+            transition:
+                width 0.1s linear;
+        }
+
+
+        /* =========================================
+           THUMBNAIL GALLERY
+        ========================================= */
+
+        .thumbnail-gallery {
+            position: absolute;
+
+            bottom: 0px;
+
+            right: 8%;
+
+            display: flex;
+
+            gap: 12px;
+
+            z-index: 20;
+        }
+
+        .thumbnail {
+            position: relative;
+
+            width: 68px;
+            height: 68px;
+
+            overflow: hidden;
+
+            border-radius: 6px;
+
+            cursor: pointer;
+
+            border: 2px solid
+                transparent;
+
+            background: #f5f5f5;
+
+            transition:
+                all 0.3s ease;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            transition:
+                transform 0.3s ease;
+        }
+
+        .thumbnail:hover img {
+            transform:
+                scale(1.1);
+        }
+
+        .thumbnail.active {
+            border-color: #a17b24;
+
+            transform:
+                translateY(-5px);
+
+            box-shadow:
+                0 5px 15px
+                rgba(0,0,0,0.12);
+        }
+
+
+        /* =========================================
+           MOBILE
+        ========================================= */
+
+        @media (max-width: 900px) {
+
+            .demand-slider {
+                min-height: 850px;
+            }
+
+            .product-content {
+                left: 7%;
+                top: 45px;
+
+                transform:
+                    translateX(-30px);
+
+                width: 86%;
+            }
+
+            .demand-slide.active .product-content {
+                transform:
+                    translateX(0);
+            }
+
+            .product-title {
+                font-size: 40px;
+
+                letter-spacing: -1px;
+            }
+
+            .product-description {
+                font-size: 14px;
+
+                line-height: 1.6;
+            }
+
+            .product-image-area {
+                top: 420px;
+
+                right: 0;
+
+                width: 100%;
+
+                height: 380px;
+
+                transform:
+                    translateY(-50%)
+                    translateX(30px);
+            }
+
+            .demand-slide.active .product-image-area {
+                transform:
+                    translateY(-50%)
+                    translateX(0);
+            }
+
+            .product-image-circle {
+                width: 320px;
+                height: 320px;
+            }
+
+            .product-image {
+                width: 340px;
+
+                max-height: 330px;
+            }
+
+            .slider-controls {
+                top: 400px;
+
+                right: 15px;
+
+                flex-direction: row;
+            }
+
+            .slider-arrow {
+                width: 40px;
+                height: 40px;
+
+                font-size: 16px;
+            }
+
+            .slide-number {
+                left: 7%;
+
+                bottom: 80px;
+            }
+
+            .progress-container {
+                left: 7%;
+
+                bottom: 58px;
+
+                width: 40%;
+            }
+
+            .thumbnail-gallery {
+                right: 7%;
+
+                bottom: 15px;
+
+                gap: 7px;
+            }
+
+            .thumbnail {
+                width: 48px;
+                height: 48px;
+            }
+
+        }
+
+
+        /* =========================================
+           SMALL MOBILE
+        ========================================= */
+
+        @media (max-width: 500px) {
+
+            .demand-slider {
+                min-height: 790px;
+            }
+
+            .product-content {
+                top: 35px;
+            }
+
+            .demand-badge {
+                font-size: 10px;
+
+                padding: 7px 11px;
+            }
+
+            .product-category {
+                font-size: 11px;
+            }
+
+            .product-title {
+                font-size: 32px;
+            }
+
+            .product-price {
+                gap: 8px;
+            }
+
+            .current-price {
+                font-size: 24px;
+            }
+
+            .old-price {
+                font-size: 15px;
+            }
+
+            .discount {
+                font-size: 10px;
+            }
+
+            .shop-button {
+                padding: 12px 20px;
+            }
+
+            .product-image-area {
+                top: 553px;
+            }
+
+            .product-image-circle {
+                width: 280px;
+                height: 280px;
+            }
+
+            .product-image {
+                width: 300px;
+            }
+
+            .thumbnail-gallery {
+                display: none;
+            }
+
+            .slide-number {
+                bottom: 40px;
+            }
+
+            .progress-container {
+                bottom: 22px;
+
+                width: 60%;
+            }
+
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+
+<section class="demand-products">
+
+    <div class="demand-slider">
+
+        <!-- Decorative background -->
+        <div class="background-circle"></div>
+
+
+        <!-- =====================================
+             SLIDE 1
+        ====================================== -->
+
+        <div class="demand-slide active">
+
+            <!-- LEFT CONTENT -->
+
+            <div class="product-content">
+
+                <div class="demand-badge">
+
+                    <span class="demand-dot"></span>
+
+                    In High Demand
+
+                </div>
+
+
+                <div class="product-category">
+                    Trending Product
+                </div>
+
+
+                <h1 class="product-title">
+                    Premium Wireless Headphones
+                </h1>
+
+
+                <p class="product-description">
+
+                    Experience powerful sound,
+                    premium comfort and modern
+                    design with one of our most
+                    demanded products.
+
+                </p>
+
+
+                <div class="product-price">
+
+                    <span class="current-price">
+                        ₹2,199
+                    </span>
+
+                    <span class="old-price">
+                        ₹4,999
+                    </span>
+
+                    <span class="discount">
+                        56% OFF
+                    </span>
+
+                </div>
+
+
+                <a href="#"
+                   class="shop-button">
+
+                    Shop Now
+
+                    <span class="shop-arrow">
+                        →
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <!-- RIGHT PRODUCT -->
+
+            <div class="product-image-area">
+
+                <div class="product-image-circle"></div>
+
+                <img
+                    class="product-image"
+                    src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=1000&h=800&fit=crop"
+                    alt="Premium Wireless Headphones"
+                />
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             SLIDE 2
+        ====================================== -->
+
+        <div class="demand-slide">
+
+            <div class="product-content">
+
+                <div class="demand-badge">
+
+                    <span class="demand-dot"></span>
+
+                    Best Seller
+
+                </div>
+
+
+                <div class="product-category">
+                    Customer Favorite
+                </div>
+
+
+                <h1 class="product-title">
+                    Classic Smart Watch
+                </h1>
+
+
+                <p class="product-description">
+
+                    Stay connected with a stylish
+                    smartwatch featuring a modern
+                    display, fitness tracking and
+                    everyday smart features.
+
+                </p>
+
+
+                <div class="product-price">
+
+                    <span class="current-price">
+                        ₹2,499
+                    </span>
+
+                    <span class="old-price">
+                        ₹5,999
+                    </span>
+
+                    <span class="discount">
+                        58% OFF
+                    </span>
+
+                </div>
+
+
+                <a href="#"
+                   class="shop-button">
+
+                    Shop Now
+
+                    <span class="shop-arrow">
+                        →
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <div class="product-image-area">
+
+                <div class="product-image-circle"></div>
+
+                <img
+                    class="product-image"
+                    src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1000&h=800&fit=crop"
+                    alt="Smart Watch"
+                />
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             SLIDE 3
+        ====================================== -->
+
+        <div class="demand-slide">
+
+            <div class="product-content">
+
+                <div class="demand-badge">
+
+                    <span class="demand-dot"></span>
+
+                    Trending Now
+
+                </div>
+
+
+                <div class="product-category">
+                    Most Wanted
+                </div>
+
+
+                <h1 class="product-title">
+                    Premium Running Shoes
+                </h1>
+
+
+                <p class="product-description">
+
+                    Lightweight comfort meets
+                    contemporary style. Designed
+                    for everyday movement and
+                    active lifestyles.
+
+                </p>
+
+
+                <div class="product-price">
+
+                    <span class="current-price">
+                        ₹1,899
+                    </span>
+
+                    <span class="old-price">
+                        ₹3,999
+                    </span>
+
+                    <span class="discount">
+                        52% OFF
+                    </span>
+
+                </div>
+
+
+                <a href="#"
+                   class="shop-button">
+
+                    Shop Now
+
+                    <span class="shop-arrow">
+                        →
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <div class="product-image-area">
+
+                <div class="product-image-circle"></div>
+
+                <img
+                    class="product-image"
+                    src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1000&h=800&fit=crop"
+                    alt="Premium Running Shoes"
+                />
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             SLIDE 4
+        ====================================== -->
+
+        <div class="demand-slide">
+
+            <div class="product-content">
+
+                <div class="demand-badge">
+
+                    <span class="demand-dot"></span>
+
+                    Limited Stock
+
+                </div>
+
+
+                <div class="product-category">
+                    New Arrival
+                </div>
+
+
+                <h1 class="product-title">
+                    Premium Fashion Sunglasses
+                </h1>
+
+
+                <p class="product-description">
+
+                    Elevate your everyday look
+                    with a premium frame designed
+                    for effortless style and comfort.
+
+                </p>
+
+
+                <div class="product-price">
+
+                    <span class="current-price">
+                        ₹1,299
+                    </span>
+
+                    <span class="old-price">
+                        ₹2,999
+                    </span>
+
+                    <span class="discount">
+                        57% OFF
+                    </span>
+
+                </div>
+
+
+                <a href="#"
+                   class="shop-button">
+
+                    Shop Now
+
+                    <span class="shop-arrow">
+                        →
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <div class="product-image-area">
+
+                <div class="product-image-circle"></div>
+
+                <img
+                    class="product-image"
+                    src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=1000&h=800&fit=crop"
+                    alt="Fashion Sunglasses"
+                />
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             ARROWS
+        ====================================== -->
+
+        <div class="slider-controls">
+
+            <button
+                class="slider-arrow"
+                id="prevBtn"
+                aria-label="Previous product">
+
+                ❮
+
+            </button>
+
+
+            <button
+                class="slider-arrow"
+                id="nextBtn"
+                aria-label="Next product">
+
+                ❯
+
+            </button>
+
+        </div>
+
+
+        <!-- =====================================
+             SLIDE NUMBER
+        ====================================== -->
+
+        <div class="slide-number">
+
+            <strong id="currentNumber">
+                01
+            </strong>
+
+            &nbsp; / &nbsp;
+
+            <span id="totalNumber">
+                04
+            </span>
+
+        </div>
+
+
+        <!-- =====================================
+             PROGRESS
+        ====================================== -->
+
+        <div class="progress-container">
+
+            <div
+                class="progress-bar"
+                id="progressBar">
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             THUMBNAILS
+        ====================================== -->
+
+        <div
+            class="thumbnail-gallery"
+            id="thumbnailGallery">
+
+            <div
+                class="thumbnail active"
+                data-index="0">
+
+                <img
+                    src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop"
+                    alt="Headphones"
+                />
+
+            </div>
+
+
+            <div
+                class="thumbnail"
+                data-index="1">
+
+                <img
+                    src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=200&fit=crop"
+                    alt="Smart Watch"
+                />
+
+            </div>
+
+
+            <div
+                class="thumbnail"
+                data-index="2">
+
+                <img
+                    src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=200&fit=crop"
+                    alt="Running Shoes"
+                />
+
+            </div>
+
+
+            <div
+                class="thumbnail"
+                data-index="3">
+
+                <img
+                    src="https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=200&h=200&fit=crop"
+                    alt="Sunglasses"
+                />
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<script>
+
+    /* =========================================
+       SETTINGS
+    ========================================= */
+
+    const slides =
+        document.querySelectorAll(
+            '.demand-slide'
+        );
+
+    const thumbnails =
+        document.querySelectorAll(
+            '.thumbnail'
+        );
+
+    const nextButton =
+        document.getElementById(
+            'nextBtn'
+        );
+
+    const prevButton =
+        document.getElementById(
+            'prevBtn'
+        );
+
+    const progressBar =
+        document.getElementById(
+            'progressBar'
+        );
+
+    const currentNumber =
+        document.getElementById(
+            'currentNumber'
+        );
+
+    const totalNumber =
+        document.getElementById(
+            'totalNumber'
+        );
+
+
+    let currentIndex = 0;
+
+    let autoplay;
+
+    const duration = 5000;
+
+    const totalSlides =
+        slides.length;
+
+
+    totalNumber.textContent =
+        String(totalSlides)
+            .padStart(2, '0');
+
+
+    /* =========================================
+       SHOW SLIDE
+    ========================================= */
+
+    function showSlide(index) {
+
+        if (index >= totalSlides) {
+
+            index = 0;
+
+        }
+
+        if (index < 0) {
+
+            index =
+                totalSlides - 1;
+
+        }
+
+
+        currentIndex = index;
+
+
+        /* Slides */
+
+        slides.forEach(
+            (slide, i) => {
+
+                slide.classList.toggle(
+                    'active',
+                    i === currentIndex
+                );
+
+            }
+        );
+
+
+        /* Thumbnails */
+
+        thumbnails.forEach(
+            (thumbnail, i) => {
+
+                thumbnail.classList.toggle(
+                    'active',
+                    i === currentIndex
+                );
+
+            }
+        );
+
+
+        /* Number */
+
+        currentNumber.textContent =
+            String(currentIndex + 1)
+                .padStart(2, '0');
+
+
+        /* Restart progress */
+
+        startProgress();
+
+    }
+
+
+    /* =========================================
+       NEXT
+    ========================================= */
+
+    function nextSlide() {
+
+        showSlide(
+            currentIndex + 1
+        );
+
+    }
+
+
+    /* =========================================
+       PREVIOUS
+    ========================================= */
+
+    function previousSlide() {
+
+        showSlide(
+            currentIndex - 1
+        );
+
+    }
+
+
+    /* =========================================
+       BUTTON EVENTS
+    ========================================= */
+
+    nextButton.addEventListener(
+        'click',
+        () => {
+
+            nextSlide();
+
+            restartAutoplay();
+
+        }
+    );
+
+
+    prevButton.addEventListener(
+        'click',
+        () => {
+
+            previousSlide();
+
+            restartAutoplay();
+
+        }
+    );
+
+
+    /* =========================================
+       THUMBNAIL EVENTS
+    ========================================= */
+
+    thumbnails.forEach(
+        thumbnail => {
+
+            thumbnail.addEventListener(
+                'click',
+                () => {
+
+                    const index =
+                        Number(
+                            thumbnail
+                                .dataset
+                                .index
+                        );
+
+                    showSlide(index);
+
+                    restartAutoplay();
+
+                }
+            );
+
+        }
+    );
+
+
+    /* =========================================
+       AUTOPLAY
+    ========================================= */
+
+    function startAutoplay() {
+
+        clearInterval(
+            autoplay
+        );
+
+        autoplay =
+            setInterval(
+                nextSlide,
+                duration
+            );
+
+    }
+
+
+    function restartAutoplay() {
+
+        clearInterval(
+            autoplay
+        );
+
+        startAutoplay();
+
+    }
+
+
+    /* =========================================
+       PROGRESS BAR
+    ========================================= */
+
+    let progressAnimation;
+
+
+    function startProgress() {
+
+        cancelAnimationFrame(
+            progressAnimation
+        );
+
+
+        const start =
+            performance.now();
+
+
+        function animate(time) {
+
+            const elapsed =
+                time - start;
+
+
+            const percentage =
+                Math.min(
+                    (elapsed / duration) * 100,
+                    100
+                );
+
+
+            progressBar.style.width =
+                percentage + '%';
+
+
+            if (percentage < 100) {
+
+                progressAnimation =
+                    requestAnimationFrame(
+                        animate
+                    );
+
+            }
+
+        }
+
+
+        progressAnimation =
+            requestAnimationFrame(
+                animate
+            );
+
+    }
+
+
+    /* =========================================
+       PAUSE WHEN TAB IS NOT ACTIVE
+    ========================================= */
+
+    document.addEventListener(
+        'visibilitychange',
+        () => {
+
+            if (
+                document.hidden
+            ) {
+
+                clearInterval(
+                    autoplay
+                );
+
+            } else {
+
+                restartAutoplay();
+
+            }
+
+        }
+    );
+
+
+    /* =========================================
+       INITIALIZE
+    ========================================= */
+
+    showSlide(0);
+
+    startAutoplay();
+
+</script>
+
+</body>
+</html>

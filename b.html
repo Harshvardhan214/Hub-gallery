@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Instagram Client Growth Slider</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link
+rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+/>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#f4f9ff;
+padding:60px 20px;
+}
+
+.container{
+max-width:1300px;
+margin:auto;
+}
+
+.title{
+text-align:center;
+margin-bottom:50px;
+}
+
+.title h1{
+font-size:42px;
+color:#0b1f52;
+margin-bottom:10px;
+font-weight:700;
+}
+
+.title p{
+font-size:18px;
+color:#5d6b82;
+}
+
+.swiper{
+ padding: 20px 20px 40px 20px ;
+}
+
+.client-card{
+background:#ffffff;
+border-radius:22px;
+overflow:hidden;
+box-shadow:0 15px 40px rgba(15,76,129,.12);
+transition:.35s;
+height:500px;
+display:flex;
+flex-direction:column;
+border:1px solid #d9e8ff;
+}
+
+.client-card:hover{
+transform:translateY(-10px);
+box-shadow:0 20px 50px rgba(15,76,129,.18);
+}
+
+.cover{
+height:120px;
+background:linear-gradient(135deg,#0b5ed7,#3fa9ff,#b9e6ff);
+}
+
+.profile{
+padding:0 25px 30px;
+margin-top:-38px;
+display:flex;
+flex-direction:column;
+flex:1;
+}
+
+.profile-header{
+display:flex;
+align-items:center;
+gap:15px;
+background:#fff;
+padding:16px;
+border-radius:18px;
+box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+.insta-icon{
+width:65px;
+height:65px;
+border-radius:18px;
+background:linear-gradient(135deg,#0b5ed7,#3fa9ff);
+display:flex;
+justify-content:center;
+align-items:center;
+color:#fff;
+font-size:28px;
+font-weight:bold;
+flex-shrink:0;
+box-shadow:0 8px 20px rgba(11,94,215,.3);
+}
+
+.info h2{
+font-size:20px;
+color:#111827;
+font-weight:600;
+}
+
+.info span{
+display:block;
+font-size:14px;
+color:#4b5563;
+margin-top:3px;
+}
+
+.info p{
+font-size:14px;
+color:#6b7280;
+margin-top:6px;
+}
+
+.badge{
+display:inline-block;
+margin-top:22px;
+padding:8px 18px;
+background:#e6f4ff;
+color:#0b5ed7;
+font-weight:600;
+border-radius:30px;
+border:1px solid #b9dcff;
+}
+
+.stats{
+display:flex;
+justify-content:space-between;
+margin:25px 0;
+padding:20px 0;
+border-top:1px solid #dce8f5;
+border-bottom:1px solid #dce8f5;
+}
+
+.stat{
+width:33%;
+text-align:center;
+}
+
+.stat h3{
+font-size:22px;
+margin-bottom:5px;
+ font-weight:700;
+}
+
+.stat p{
+font-size:14px;
+color:#6b7280;
+}
+
+.growth{
+color:#0b5ed7;
+}
+
+.button{
+display:block;
+text-align:center;
+padding:14px;
+background:linear-gradient(135deg,#0b5ed7,#3fa9ff);
+color:#fff;
+text-decoration:none;
+border-radius:12px;
+font-weight:600;
+transition:.3s;
+margin-top:auto;
+box-shadow:0 8px 20px rgba(11,94,215,.25);
+}
+
+.button:hover{
+background:linear-gradient(135deg,#084298,#0b5ed7);
+transform:translateY(-2px);
+}
+
+.swiper-button-next,
+.swiper-button-prev{
+color:#0b5ed7;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover{
+color:#084298;
+}
+
+.swiper-pagination-bullet{
+background:#9ecfff;
+opacity:1;
+}
+
+.swiper-pagination-bullet-active{
+background:#0b5ed7;
+}
+
+/* Back to Hub Button */
+.back-to-hub {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    background: white;
+    border: 1px solid #d9e8ff;
+    border-radius: 100px;
+    box-shadow: 0 8px 25px rgba(15,76,129,0.15);
+    text-decoration: none;
+    color: #0b1f52;
+    font-size: 0.85rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    transition: all 0.3s;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.back-to-hub:hover {
+    transform: translateY(-3px);
+    border-color: #0b5ed7;
+    box-shadow: 0 12px 35px rgba(11,94,215,0.2);
+}
+
+.back-to-hub svg {
+    width: 18px;
+    height: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="title">
+<h1>Instagram Growth Results 🚀</h1>
+<p>Helping brands grow faster on Instagram.</p>
+</div>
+
+<div class="swiper mySwiper">
+<div class="swiper-wrapper">
+
+<!-- CARD 1 -->
+
+<div class="swiper-slide">
+<div class="client-card">
+
+<div class="cover"></div>
+
+<div class="profile">
+
+<div class="profile-header">
+<div class="insta-icon">IG</div>
+
+<div class="info">
+<h2>The Jaipur Studio</h2>
+<span>@thejaipurstudio</span>
+<p> </p>
+</div>
+</div>
+
+<div class="badge">▲ 790% Growth</div>
+
+<div class="stats">
+<div class="stat">
+<h3>2.1K</h3>
+<p>Before</p>
+</div>
+
+<div class="stat">
+<h3>582K</h3>
+<p>Current</p>
+</div>
+
+<div class="stat">
+<h3 class="growth">+16.6K</h3>
+<p>Growth</p>
+</div>
+</div>
+
+<a href="https://instagram.com/thejaipurstudio" class="button">View Instagram</a>
+
+</div>
+</div>
+</div>
+
+<!-- CARD 2 -->
+
+<div class="swiper-slide">
+<div class="client-card">
+
+<div class="cover"></div>
+
+<div class="profile">
+
+<div class="profile-header">
+<div class="insta-icon">IG</div>
+
+<div class="info">
+<h2>Jaipur Watch Company</h2>
+<span>@jaipurwatchcompany</span>
+<p> </p>
+</div>
+</div>
+
+<div class="badge">▲ 620% Growth</div>
+
+<div class="stats">
+<div class="stat">
+<h3>54k</h3>
+<p>Before</p>
+</div>
+
+<div class="stat">
+<h3>120K </h3>
+<p>Current</p>
+</div>
+
+<div class="stat">
+<h3 class="growth">+8.9K</h3>
+<p>Growth</p>
+</div>
+</div>
+
+<a href="https://www.instagram.com/jaipurwatchcompany/?hl=en" class="button">View Instagram</a>
+
+</div>
+</div>
+</div>
+
+<!-- CARD 3 -->
+
+<div class="swiper-slide">
+<div class="client-card">
+
+<div class="cover"></div>
+
+<div class="profile">
+
+<div class="profile-header">
+<div class="insta-icon">IG</div>
+
+<div class="info">
+<h2>Minimalist</h2>
+<span>@beminimalist__</span>
+<p> </p>
+</div>
+</div>
+
+<div class="badge">▲ 980% Growth</div>
+
+<div class="stats">
+<div class="stat">
+<h3>305K</h3>
+<p>Before</p>
+</div>
+
+<div class="stat">
+<h3>541K </h3>
+<p>Current</p>
+</div>
+
+<div class="stat">
+<h3 class="growth">+21.5K</h3>
+<p>Growth</p>
+</div>
+</div>
+
+<a href="https://www.instagram.com/beminimalist__/?hl=en" class="button">View Instagram</a>
+
+</div>
+</div>
+</div>
+<!-- CARD 4 -->
+
+<div class="swiper-slide">
+<div class="client-card">
+
+<div class="cover"></div>
+
+<div class="profile">
+
+<div class="profile-header">
+<div class="insta-icon">IG</div>
+
+<div class="info">
+<h2>Jaipur Kurti</h2>
+<span>@jaipurkurti</span>
+<p> </p>
+</div>
+</div>
+
+<div class="badge">▲ 540% Growth</div>
+
+<div class="stats">
+
+<div class="stat">
+<h3>108K</h3>
+<p>Before</p>
+</div>
+
+<div class="stat">
+<h3>151K</h3>
+<p>Current</p>
+</div>
+
+<div class="stat">
+<h3 class="growth">+15.1K</h3>
+<p>Growth</p>
+</div>
+
+</div>
+
+<a href="https://www.instagram.com/jaipurkurti/?hl=en" class="button">View Instagram</a>
+
+</div>
+</div>
+</div>
+
+<!-- CARD 5 -->
+
+<div class="swiper-slide">
+<div class="client-card">
+
+<div class="cover"></div>
+
+<div class="profile">
+
+<div class="profile-header">
+<div class="insta-icon">IG</div>
+
+<div class="info">
+<h2>𝗜𝗖𝗢𝗡𝗜𝗖 𝗙𝗢𝗢𝗧𝗕𝗔𝗟𝗟 𝗦𝗛𝗢𝗣</h2>
+<span>@iconicfootballshop</span>
+<p> </p>
+</div>
+</div>
+
+<div class="badge">▲ 1120% Growth</div>
+
+<div class="stats">
+
+<div class="stat">
+<h3>11.3k</h3>
+<p>Before</p>
+</div>
+
+<div class="stat">
+<h3>16.9K</h3>
+<p>Current</p>
+</div>
+
+<div class="stat">
+<h3 class="growth">+11.5K</h3>
+<p>Growth</p>
+</div>
+
+</div>
+
+<a href="https://www.instagram.com/iconicfootballshop/?hl=en" class="button">View Instagram</a>
+
+</div>
+</div>
+</div>
+
+<!-- CARD 6 -->
+
+<div class="swiper-slide">
+<div class="client-card">
+
+<div class="cover"></div>
+
+<div class="profile">
+
+<div class="profile-header">
+<div class="insta-icon">IG</div>
+
+<div class="info">
+<h2>FASHION CAPITAL</h2>
+<span>@fashioncapital.in_</span>
+<p> </p>
+</div>
+</div>
+
+<div class="badge">▲ 860% Growth</div>
+
+<div class="stats">
+
+<div class="stat">
+<h3>63.5K</h3>
+<p>Before</p>
+</div>
+
+<div class="stat">
+<h3>159K</h3>
+<p>Current</p>
+</div>
+
+<div class="stat">
+<h3 class="growth">+32.3K</h3>
+<p>Growth</p>
+</div>
+
+</div>
+
+<a href="https://www.instagram.com/fashioncapital.in_/?hl=en" class="button">View Instagram</a>
+
+</div>
+</div>
+</div>
+
+<!-- END SLIDES -->
+
+</div>
+
+<!-- Pagination -->
+<div class="swiper-pagination"></div>
+
+<!-- Navigation -->
+<div class="swiper-button-next"></div>
+<div class="swiper-button-prev"></div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+<script>
+
+new Swiper(".mySwiper",{
+
+loop:true,
+
+spaceBetween:30,
+
+speed:800,
+
+autoplay:{
+delay:2500,
+disableOnInteraction:false,
+},
+
+pagination:{
+el:".swiper-pagination",
+clickable:true,
+},
+
+navigation:{
+nextEl:".swiper-button-next",
+prevEl:".swiper-button-prev",
+},
+
+breakpoints:{
+
+0:{
+slidesPerView:1,
+},
+
+640:{
+slidesPerView:2,
+},
+
+1024:{
+slidesPerView:3,
+},
+
+1400:{
+slidesPerView:4,
+}
+
+}
+
+});
+
+</script>
+
+<!-- Back to Hub Button -->
+<a href="components-hub.html" class="back-to-hub">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+    <span>Components Hub</span>
+</a>
+
+</body>
+</html>

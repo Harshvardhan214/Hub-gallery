@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kai Sørensen — Cinematographer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0b0b0c;
+    --ink-2:#141416;
+    --paper:#eae5d9;
+    --paper-dim:#a9a49a;
+    --amber:#c98a3d;
+    --teal:#3d6a63;
+    --line:#2a2a2a;
+    --card:#141413;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+    cursor:default;
+  }
+  ::selection{background:var(--amber);color:var(--ink);}
+
+  /* ---------- canvas background ---------- */
+  #scene{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+  }
+  .scrim{
+    position:fixed;
+    inset:0;
+    z-index:1;
+    pointer-events:none;
+    background:
+      radial-gradient(120% 90% at 50% 0%, transparent 0%, rgba(11,11,12,.55) 65%, rgba(11,11,12,.92) 100%),
+      linear-gradient(180deg, rgba(11,11,12,.15) 0%, rgba(11,11,12,.35) 40%, rgba(11,11,12,.75) 100%);
+  }
+  .grain{
+    position:fixed;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    opacity:.05;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- film-strip chrome ---------- */
+  .sprockets{
+    position:fixed;
+    top:0; bottom:0;
+    width:26px;
+    z-index:5;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:14px 0;
+    pointer-events:none;
+  }
+  .sprockets.left{left:0;}
+  .sprockets.right{right:0;}
+  .sprockets span{
+    width:9px;height:13px;
+    background:var(--ink);
+    border:1px solid rgba(234,229,217,.18);
+    border-radius:2px;
+    margin:0 auto;
+  }
+
+  header.hud{
+    position:fixed;
+    top:0; left:0; right:0;
+    z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:26px 46px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--paper-dim);
+    pointer-events:none;
+  }
+  header.hud .mark{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:20px;
+    letter-spacing:.08em;
+    color:var(--paper);
+    pointer-events:auto;
+  }
+  header.hud .tc{
+    display:flex;
+    gap:22px;
+    align-items:center;
+  }
+  header.hud .tc b{color:var(--amber);font-weight:500;}
+  header.hud .rec{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+  }
+  header.hud .rec::before{
+    content:'';
+    width:6px;height:6px;
+    border-radius:50%;
+    background:#c94b3d;
+    box-shadow:0 0 6px #c94b3d;
+    animation:blink 1.6s infinite;
+  }
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+  .rail{
+    position:fixed;
+    left:46px; bottom:34px;
+    z-index:20;
+    width:180px;
+    pointer-events:none;
+  }
+  .rail .track{
+    height:1px;
+    background:rgba(234,229,217,.2);
+    position:relative;
+  }
+  .rail .fill{
+    position:absolute; left:0; top:0; bottom:0;
+    width:0%;
+    background:var(--amber);
+  }
+  .rail .lbl{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:.1em;
+    color:var(--paper-dim);
+    margin-top:9px;
+    text-transform:uppercase;
+  }
+
+  .reel-index{
+    position:fixed;
+    right:46px; bottom:34px;
+    z-index:20;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--paper-dim);
+    text-align:right;
+    letter-spacing:.08em;
+    pointer-events:none;
+  }
+  .reel-index b{color:var(--paper);font-weight:500;}
+
+  /* ---------- layout ---------- */
+  main{position:relative;z-index:10;}
+  section{
+    position:relative;
+    padding:0 46px;
+    max-width:1180px;
+    margin:0 auto;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--amber);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:22px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:34px;height:1px;
+    background:var(--amber);
+  }
+
+  /* hero */
+  .hero{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding-top:80px;
+  }
+  .hero .role{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--paper-dim);
+    margin-bottom:18px;
+  }
+  .hero h1{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(64px,12vw,168px);
+    line-height:.88;
+    letter-spacing:.01em;
+    color:var(--paper);
+  }
+  .hero h1 em{
+    font-style:normal;
+    color:transparent;
+    -webkit-text-stroke:1.5px var(--paper);
+  }
+  .hero .sub{
+    max-width:480px;
+    margin-top:30px;
+    font-size:16px;
+    line-height:1.7;
+    color:var(--paper-dim);
+    font-weight:300;
+  }
+  .scrollcue{
+    margin-top:64px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--paper-dim);
+  }
+  .scrollcue .bar{
+    width:1px;height:38px;
+    background:linear-gradient(180deg,var(--amber),transparent);
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* about */
+  .about{
+    min-height:80vh;
+    display:flex;
+    align-items:center;
+    padding-top:120px;
+    padding-bottom:120px;
+  }
+  .about .grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:80px;
+    align-items:start;
+  }
+  .about h2{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(38px,5vw,58px);
+    line-height:1.05;
+    color:var(--paper);
+    margin-bottom:8px;
+  }
+  .about p{
+    font-size:16px;
+    line-height:1.85;
+    font-weight:300;
+    color:var(--paper-dim);
+    margin-top:22px;
+  }
+  .stat-list{
+    display:flex;
+    flex-direction:column;
+    gap:0;
+    border-top:1px solid var(--line);
+  }
+  .stat-list .row{
+    display:flex;
+    justify-content:space-between;
+    padding:20px 0;
+    border-bottom:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:.05em;
+    color:var(--paper-dim);
+  }
+  .stat-list .row span:last-child{color:var(--paper);}
+
+  /* work */
+  .work{padding-top:120px;padding-bottom:60px;}
+  .work-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:56px;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .work-head h2{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(38px,5vw,58px);
+  }
+  .work-head p{
+    max-width:340px;
+    font-size:14px;
+    line-height:1.7;
+    color:var(--paper-dim);
+    font-weight:300;
+  }
+  .reel-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .reel-card{
+    background:var(--card);
+    padding:38px;
+    min-height:280px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition:background .35s ease;
+    position:relative;
+    overflow:hidden;
+  }
+  .reel-card:hover{background:#1a1a17;}
+  .reel-card .tag{
+    display:flex;
+    justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--paper-dim);
+  }
+  .reel-card .tag .ar{color:var(--teal);}
+  .reel-card h3{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:34px;
+    letter-spacing:.01em;
+    margin-top:60px;
+  }
+  .reel-card .meta{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-top:18px;
+    font-size:13px;
+    color:var(--paper-dim);
+    font-weight:300;
+  }
+  .reel-card .meta b{
+    color:var(--amber);
+    font-weight:500;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+  }
+  .reel-card::after{
+    content:'';
+    position:absolute;
+    left:0;right:0;bottom:0;
+    height:2px;
+    background:var(--amber);
+    transform:scaleX(0);
+    transform-origin:left;
+    transition:transform .45s ease;
+  }
+  .reel-card:hover::after{transform:scaleX(1);}
+
+  /* capabilities */
+  .caps{padding-top:120px;padding-bottom:120px;}
+  .caps h2{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(38px,5vw,58px);
+    margin-bottom:56px;
+  }
+  .caps-list{border-top:1px solid var(--line);}
+  .caps-row{
+    display:grid;
+    grid-template-columns:70px 1fr 1fr;
+    gap:24px;
+    padding:30px 0;
+    border-bottom:1px solid var(--line);
+    align-items:baseline;
+  }
+  .caps-row .n{
+    font-family:'JetBrains Mono',monospace;
+    color:var(--amber);
+    font-size:13px;
+  }
+  .caps-row h4{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:26px;
+    letter-spacing:.01em;
+    font-weight:400;
+  }
+  .caps-row p{
+    font-size:14px;
+    font-weight:300;
+    line-height:1.7;
+    color:var(--paper-dim);
+  }
+
+  /* contact */
+  .contact{
+    min-height:90vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding-bottom:120px;
+  }
+  .contact h2{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(48px,10vw,120px);
+    line-height:.92;
+  }
+  .contact .email{
+    display:inline-flex;
+    margin-top:36px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:15px;
+    letter-spacing:.03em;
+    color:var(--amber);
+    text-decoration:none;
+    border-bottom:1px solid rgba(201,138,61,.4);
+    padding-bottom:4px;
+    width:fit-content;
+  }
+  .contact .row2{
+    display:flex;
+    gap:60px;
+    margin-top:70px;
+    flex-wrap:wrap;
+  }
+  .contact .col span{
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--paper-dim);
+    margin-bottom:10px;
+  }
+  .contact .col a, .contact .col div{
+    font-size:14px;
+    color:var(--paper);
+    font-weight:300;
+    line-height:1.9;
+  }
+
+  footer{
+    padding:30px 46px 40px;
+    display:flex;
+    justify-content:space-between;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.08em;
+    color:var(--paper-dim);
+    text-transform:uppercase;
+    border-top:1px solid var(--line);
+  }
+
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--amber);
+    outline-offset:3px;
+  }
+
+  @media (max-width:820px){
+    .sprockets{display:none;}
+    header.hud{padding:20px 22px;}
+    header.hud .tc{gap:12px;}
+    section{padding:0 22px;}
+    .about .grid{grid-template-columns:1fr;gap:40px;}
+    .reel-grid{grid-template-columns:1fr;}
+    .caps-row{grid-template-columns:40px 1fr;}
+    .caps-row p{grid-column:1 / -1;}
+    .rail{left:22px;width:130px;}
+    .reel-index{right:22px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    .grain{display:none;}
+  }
+
+  /* Back to Hub Button */
+  .back-to-hub {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    background: rgba(11,11,12,0.85);
+    border: 1px solid rgba(234,229,217,0.12);
+    border-radius: 100px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    text-decoration: none;
+    color: var(--paper);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    transition: all 0.3s;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .back-to-hub:hover {
+    transform: translateY(-3px);
+    border-color: var(--amber);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
+  }
+
+  .back-to-hub svg {
+    width: 16px;
+    height: 16px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="scene"></canvas>
+<div class="scrim"></div>
+<div class="grain"></div>
+
+<div class="sprockets left" aria-hidden="true">
+  <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+</div>
+<div class="sprockets right" aria-hidden="true">
+  <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+</div>
+
+<header class="hud">
+  <div class="mark">K·S</div>
+  <div class="tc">
+    <span class="rec">REC</span>
+    <span>TC <b id="timecode">00:00:00:00</b></span>
+    <span id="apertureRead">f/2.8</span>
+  </div>
+</header>
+
+<div class="rail" aria-hidden="true">
+  <div class="track"><div class="fill" id="railFill"></div></div>
+  <div class="lbl">Reel Position — <span id="railPct">00%</span></div>
+</div>
+
+<div class="reel-index" aria-hidden="true">
+  Scene <b id="sceneNum">01</b> / 05
+</div>
+
+<main>
+
+  <section class="hero" id="scene-01">
+    <div class="role">Cinematography &amp; Direction — Based between Oslo &amp; Lisbon</div>
+    <h1>KAI<br><em>SØRENSEN</em></h1>
+    <p class="sub">I shoot light the way editors cut sound — frame by frame, on purpose. Fifteen years behind the camera for feature film, fashion, and long-form commercial work.</p>
+    <div class="scrollcue"><div class="bar"></div>Scroll to scrub the reel</div>
+  </section>
+
+  <section class="about" id="scene-02">
+    <div class="eyebrow">Reel 01 — About</div>
+    <div class="grid">
+      <div>
+        <h2>Light is the only<br>character I direct.</h2>
+        <p>I started as a gaffer's assistant on a fishing dock in Bergen, learning what a single 2K tungsten head can do to a grey afternoon. That's still the job: deciding what the audience is allowed to see, and when.</p>
+        <p>Today I split my time between narrative features and commercial work that still wants to look like cinema — not content. Every project starts on film stock in my head, even when it finishes on a sensor.</p>
+      </div>
+      <div class="stat-list">
+        <div class="row"><span>Years behind camera</span><span>15</span></div>
+        <div class="row"><span>Features shot</span><span>6</span></div>
+        <div class="row"><span>Formats</span><span>35mm · Alexa · 16mm</span></div>
+        <div class="row"><span>Festival selections</span><span>Cannes · Sundance · Rotterdam</span></div>
+        <div class="row"><span>Currently grading</span><span>"Low Tide", feature, 2026</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="work" id="scene-03">
+    <div class="eyebrow">Reel 02 — Selected Work</div>
+    <div class="work-head">
+      <h2>Five frames from<br>the archive.</h2>
+      <p>A short cut of feature, fashion film, and commercial work from the last three years. Full reels available on request.</p>
+    </div>
+    <div class="reel-grid">
+      <div class="reel-card">
+        <div class="tag"><span>Feature Film</span><span class="ar">2.39:1</span></div>
+        <h3>Low Tide</h3>
+        <div class="meta"><span>Director of Photography</span><b>2026</b></div>
+      </div>
+      <div class="reel-card">
+        <div class="tag"><span>Fashion Film</span><span class="ar">1.85:1</span></div>
+        <h3>Auric — SS26</h3>
+        <div class="meta"><span>Director / DP</span><b>2025</b></div>
+      </div>
+      <div class="reel-card">
+        <div class="tag"><span>Commercial</span><span class="ar">16:9</span></div>
+        <h3>Nordlys Bank</h3>
+        <div class="meta"><span>Director of Photography</span><b>2025</b></div>
+      </div>
+      <div class="reel-card">
+        <div class="tag"><span>Documentary</span><span class="ar">2.39:1</span></div>
+        <h3>Tidewater</h3>
+        <div class="meta"><span>Cinematographer</span><b>2024</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="caps" id="scene-04">
+    <div class="eyebrow">Reel 03 — Capabilities</div>
+    <h2>What's on the truck.</h2>
+    <div class="caps-list">
+      <div class="caps-row">
+        <div class="n">01</div>
+        <h4>Cinematography</h4>
+        <p>Full DP service from prep through DI — camera, lighting, and crew builds for feature, commercial, and branded narrative.</p>
+      </div>
+      <div class="caps-row">
+        <div class="n">02</div>
+        <h4>Direction</h4>
+        <p>Concept-to-delivery direction for fashion film and commercial spots, including treatment writing and edit supervision.</p>
+      </div>
+      <div class="caps-row">
+        <div class="n">03</div>
+        <h4>Colour &amp; Finish</h4>
+        <p>On-set LUT design and collaborative DI sessions to keep the negative's intention alive through the final grade.</p>
+      </div>
+      <div class="caps-row">
+        <div class="n">04</div>
+        <h4>Consulting</h4>
+        <p>Camera and lighting package consulting for productions building out a look before a single frame is shot.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="scene-05">
+    <div class="eyebrow">Reel 04 — Get In Touch</div>
+    <h2>Let's shoot<br>something.</h2>
+    <a class="email" href="mailto:hello@kaisorensen.studio">hello@kaisorensen.studio</a>
+    <div class="row2">
+      <div class="col">
+        <span>Represented by</span>
+        <div>Northlight Artists, Oslo</div>
+      </div>
+      <div class="col">
+        <span>Studio</span>
+        <div>Oslo — Lisbon</div>
+      </div>
+      <div class="col">
+        <span>Elsewhere</span>
+        <a href="#">Instagram</a><br>
+        <a href="#">Vimeo</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span>© 2026 Kai Sørensen Studio</span>
+  <span>Shot on 35mm, finished in daylight</span>
+</footer>
+
+<script>
+(function(){
+  const canvas = document.getElementById('scene');
+  const ctx = canvas.getContext('2d');
+  let W, H, DPR;
+
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- particles: a field of drifting "dust" motes, position seeded once,
+     their travel driven entirely by scroll progress, not by clock time ---- */
+  const N = 90;
+  const motes = Array.from({length:N}, (_,i)=>({
+    x: Math.random(),
+    y: Math.random(),
+    r: 0.4 + Math.random()*1.8,
+    speed: 0.15 + Math.random()*0.5,
+    drift: (Math.random()-0.5)*0.4,
+    seed: Math.random()*1000
+  }));
+
+  let targetProgress = 0;
+  let progress = 0; // eased/lerped scroll progress, 0..1
+  let velocity = 0; // scroll speed, for grain/streak intensity
+
+  function getProgress(){
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    return max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+  }
+
+  window.addEventListener('scroll', ()=>{ targetProgress = getProgress(); }, {passive:true});
+
+  const timecodeEl = document.getElementById('timecode');
+  const apertureEl = document.getElementById('apertureRead');
+  const railFill = document.getElementById('railFill');
+  const railPct = document.getElementById('railPct');
+  const sceneNumEl = document.getElementById('sceneNum');
+
+  const sections = ['scene-01','scene-02','scene-03','scene-04','scene-05'].map(id=>document.getElementById(id));
+
+  function fmt2(n){ return n.toString().padStart(2,'0'); }
+
+  function updateHUD(p){
+    // fake a 2:30 virtual duration, 24fps
+    const totalFrames = Math.floor(p * (150 * 24));
+    const ff = totalFrames % 24;
+    const totalSeconds = Math.floor(totalFrames / 24);
+    const ss = totalSeconds % 60;
+    const mm = Math.floor(totalSeconds / 60) % 60;
+    const hh = Math.floor(totalSeconds / 3600);
+    timecodeEl.textContent = `${fmt2(hh)}:${fmt2(mm)}:${fmt2(ss)}:${fmt2(ff)}`;
+
+    const fstop = (1.4 + p*14).toFixed(1);
+    apertureEl.textContent = `f/${fstop}`;
+
+    railFill.style.width = (p*100).toFixed(1) + '%';
+    railPct.textContent = fmt2(Math.round(p*100)) + '%';
+
+    // active scene number by nearest section
+    let idx = 0;
+    let best = Infinity;
+    sections.forEach((s,i)=>{
+      const rect = s.getBoundingClientRect();
+      const dist = Math.abs(rect.top);
+      if(dist < best){ best = dist; idx = i; }
+    });
+    sceneNumEl.textContent = fmt2(idx+1);
+  }
+
+  function draw(p, vel){
+    ctx.clearRect(0,0,W,H);
+
+    // grade: warm amber at top of page, shifts to cool teal by the end —
+    // like scrubbing from magic hour into blue hour across the whole reel
+    const topColor = lerpColor([20,15,12], [10,14,15], p);
+    const botColor = lerpColor([46,29,14], [16,28,26], p);
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0, rgb(topColor));
+    g.addColorStop(1, rgb(botColor));
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    // horizon light band, travels vertically with scroll — this IS the scrub:
+    // position is a pure function of scroll progress, no time-based motion
+    const bandY = H * (0.15 + p*0.7);
+    const bandGrad = ctx.createRadialGradient(W*0.5, bandY, 0, W*0.5, bandY, W*0.6);
+    const bandColor = p < 0.5 ? '201,138,61' : '61,106,99';
+    bandGrad.addColorStop(0, `rgba(${bandColor},${0.22 - p*0.06})`);
+    bandGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = bandGrad;
+    ctx.fillRect(0,0,W,H);
+
+    // aperture iris — hexagonal blades that open as you scrub deeper into the reel
+    drawIris(W*0.82, H*0.28, 90, p);
+    drawIris(W*0.14, H*0.74, 60, 1-p);
+
+    // dust motes — vertical position driven by progress, so scrolling
+    // literally scrubs them up/down the frame like a real scrub bar would
+    ctx.save();
+    motes.forEach(m=>{
+      const y = ((m.y + p*m.speed) % 1) * H;
+      const x = (m.x + Math.sin(p*10 + m.seed)*0.02*m.drift) * W;
+      const alpha = 0.10 + 0.10*Math.sin(p*6 + m.seed);
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(234,229,217,${Math.max(0,alpha)})`;
+      ctx.arc(x, y, m.r + Math.min(vel*4,3), 0, Math.PI*2);
+      ctx.fill();
+    });
+    ctx.restore();
+
+    // subtle scan-streak that flashes on fast scroll velocity, like a whip-pan
+    if(vel > 0.004){
+      ctx.fillStyle = `rgba(234,229,217,${Math.min(vel*6,0.06)})`;
+      ctx.fillRect(0,0,W,H);
+    }
+  }
+
+  function drawIris(cx, cy, r, t){
+    const openness = Math.max(0.08, Math.min(1, t));
+    const blades = 6;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.globalAlpha = 0.35;
+    for(let i=0;i<blades;i++){
+      ctx.save();
+      ctx.rotate((Math.PI*2/blades)*i);
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      const spread = 0.5 + (1-openness)*0.35;
+      ctx.lineTo(r*Math.cos(-spread), r*Math.sin(-spread));
+      ctx.lineTo(r*1.15*Math.cos(0), r*1.15*Math.sin(0));
+      ctx.lineTo(r*Math.cos(spread), r*Math.sin(spread));
+      ctx.closePath();
+      ctx.strokeStyle = 'rgba(234,229,217,0.18)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  function lerpColor(a,b,t){
+    return [
+      Math.round(a[0] + (b[0]-a[0])*t),
+      Math.round(a[1] + (b[1]-a[1])*t),
+      Math.round(a[2] + (b[2]-a[2])*t)
+    ];
+  }
+  function rgb(c){ return `rgb(${c[0]},${c[1]},${c[2]})`; }
+
+  function loop(){
+    const prev = progress;
+    progress += (targetProgress - progress) * (reduced ? 1 : 0.12);
+    velocity = Math.abs(progress - prev);
+    draw(progress, velocity);
+    updateHUD(progress);
+    requestAnimationFrame(loop);
+  }
+
+  targetProgress = getProgress();
+  progress = targetProgress;
+  loop();
+})();
+</script>
+
+<!-- Back to Hub Button -->
+<a href="components-hub.html" class="back-to-hub">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+    <span>Components Hub</span>
+</a>
+
+</body>
+</html>

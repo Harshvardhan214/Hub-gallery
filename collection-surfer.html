@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collection Surfer — 3D Scroll Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- Variant Switcher (fixed top) --- */
+        .variant-switcher {
+            position: fixed;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 100px;
+            padding: 0.4rem;
+        }
+
+        .variant-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 100px;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        .variant-btn:hover {
+            color: #fff;
+        }
+
+        .variant-btn.active {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
+
+        /* --- Back to Hub --- */
+        .back-to-hub {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 100px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .back-to-hub:hover {
+            transform: translateY(-3px);
+            border-color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.15);
+        }
+
+        /* --- Modal / Popup --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(20px);
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            position: relative;
+            width: 90vw;
+            max-width: 900px;
+            max-height: 85vh;
+            background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.9) translateY(30px);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.8);
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-image {
+            width: 100%;
+            height: 450px;
+            object-fit: cover;
+            display: block;
+            filter: brightness(0.85);
+        }
+
+        @media (max-width: 768px) {
+            .modal-image {
+                height: 250px;
+            }
+        }
+
+        .modal-body {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .modal-body .modal-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .modal-body h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .modal-body .modal-details {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .modal-body .modal-meta {
+            display: flex;
+            gap: 2rem;
+            margin-top: 0.5rem;
+        }
+
+        .modal-body .modal-meta div {
+            font-size: 0.8rem;
+        }
+
+        .modal-body .modal-meta span {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            margin-bottom: 0.25rem;
+        }
+
+        .modal-body .modal-meta strong {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .modal-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .modal-nav-btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 100px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-nav-btn:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .modal-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .modal-counter {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.05);
+        }
+
+        .card-3d {
+            cursor: pointer;
+        }
+
+        /* --- Scroll Spacer --- */
+        .scroll-spacer {
+            height: 50000px;
+            width: 100%;
+        }
+
+        /* --- Fixed Viewport --- */
+        .viewport {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* UI Overlays */
+        .title-overlay {
+            position: absolute;
+            top: 5vw;
+            left: 5vw;
+            z-index: 50;
+            pointer-events: none;
+            mix-blend-mode: difference;
+        }
+
+        .title-overlay h1 {
+            font-weight: 800;
+            font-size: clamp(2rem, 6vw, 5rem);
+            line-height: 0.9;
+            letter-spacing: -0.03em;
+            margin-left: 4vw;
+        }
+
+        .title-overlay h1:first-child {
+            margin-left: 0;
+        }
+
+        .title-overlay .count {
+            font-size: 0.4em;
+            vertical-align: top;
+            position: relative;
+            top: 0.6em;
+            margin-left: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 400;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 3vw;
+            right: 3vw;
+            z-index: 50;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* --- 3D Scene --- */
+        .scene-3d {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 2000px;
+            perspective-origin: 10% 10%;
+        }
+
+        .track {
+            position: relative;
+            width: 0;
+            height: 0;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        /* --- Card --- */
+        .card-3d {
+            position: absolute;
+            width: 300px;
+            height: 420px;
+            background: #141414;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+            transform-style: preserve-3d;
+            will-change: transform;
+            transition: filter 0.5s ease-out;
+        }
+
+        .card-3d .index-number {
+            position: absolute;
+            top: -6px;
+            left: -4px;
+            color: rgba(255,255,255,0.5);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            z-index: 10;
+            transition: opacity 0.3s;
+        }
+
+        .card-3d:hover .index-number {
+            opacity: 1;
+        }
+
+        .card-3d .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.75);
+            transition: filter 0.3s;
+            display: block;
+        }
+
+        .card-3d:hover .card-image {
+            filter: brightness(1);
+        }
+
+        .card-3d .card-gradient {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.2), transparent);
+            pointer-events: none;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .card-3d {
+                width: 200px;
+                height: 280px;
+            }
+            .title-overlay {
+                top: 8vw;
+                left: 4vw;
+            }
+            .variant-switcher {
+                top: 0.75rem;
+                gap: 0.25rem;
+                padding: 0.3rem;
+            }
+            .variant-btn {
+                padding: 0.35rem 0.8rem;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Variant Switcher -->
+    <div class="variant-switcher" id="variantSwitcher">
+        <button class="variant-btn active" data-variant="magnetic">Magnetic</button>
+        <button class="variant-btn" data-variant="uplift">Uplift</button>
+        <button class="variant-btn" data-variant="simple">Simple</button>
+    </div>
+
+    <!-- Back to Hub -->
+    <a href="components-hub.html" class="back-to-hub">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Components Hub
+    </a>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <button class="modal-close" id="modalClose">✕</button>
+            <img class="modal-image" id="modalImage" src="" alt="">
+            <div class="modal-body">
+                <div class="modal-tag">COLLECTION PIECE</div>
+                <h2 id="modalTitle">HERITAGE 01</h2>
+                <p class="modal-details" id="modalDetails">A curated piece from the HERITAGE FW25/26 collection. Each garment tells a story of craftsmanship, heritage, and contemporary design. Explore the full collection to discover more.</p>
+                <div class="modal-meta">
+                    <div>
+                        <span>Collection</span>
+                        <strong>FW25/26</strong>
+                    </div>
+                    <div>
+                        <span>Category</span>
+                        <strong>Ready-to-Wear</strong>
+                    </div>
+                    <div>
+                        <span>Release</span>
+                        <strong>Winter 2025</strong>
+                    </div>
+                </div>
+                <div class="modal-nav">
+                    <button class="modal-nav-btn" id="modalPrev">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                        Previous
+                    </button>
+                    <span class="modal-counter" id="modalCounter">01 / 16</span>
+                    <button class="modal-nav-btn" id="modalNext">
+                        Next
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll Spacer -->
+    <div class="scroll-spacer"></div>
+
+    <!-- Fixed Viewport -->
+    <div class="viewport" id="viewport">
+        <!-- Title Overlay -->
+        <div class="title-overlay">
+            <h1>HERITAGE FW25/26</h1>
+            <h1>COLLECTION<span class="count">(16)</span></h1>
+        </div>
+
+        <div class="scroll-hint">scroll to surf</div>
+
+        <!-- 3D Scene -->
+        <div class="scene-3d" id="scene3d">
+            <div class="track" id="track"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- Collection Items (same unsplash images as React component) ---
+        const ITEMS = [
+            { id: 1, image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80", title: "HERITAGE 01" },
+            { id: 2, image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=80", title: "HERITAGE 02" },
+            { id: 3, image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80", title: "HERITAGE 03" },
+            { id: 4, image: "https://images.unsplash.com/photo-1500917293891-ef795e70e1f6?w=800&q=80", title: "HERITAGE 04" },
+            { id: 5, image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&q=80", title: "HERITAGE 05" },
+            { id: 6, image: "https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?w=800&q=80", title: "HERITAGE 06" },
+            { id: 7, image: "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=800&q=80", title: "HERITAGE 07" },
+            { id: 8, image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80", title: "HERITAGE 08" },
+            { id: 9, image: "https://images.unsplash.com/photo-1502716119720-b23a93e5fe1b?w=800&q=80", title: "HERITAGE 09" },
+            { id: 10, image: "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=800&q=80", title: "HERITAGE 10" },
+            { id: 11, image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80", title: "HERITAGE 11" },
+            { id: 12, image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80", title: "HERITAGE 12" },
+            { id: 13, image: "https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=800&q=80", title: "HERITAGE 13" },
+            { id: 14, image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80", title: "HERITAGE 14" },
+            { id: 15, image: "https://images.unsplash.com/photo-1496217590455-aa63a8350eea?w=800&q=80", title: "HERITAGE 15" },
+            { id: 16, image: "https://images.unsplash.com/photo-1571513722275-4b41940f54b8?w=800&q=80", title: "HERITAGE 16" }
+        ];
+
+        const totalItems = ITEMS.length;
+        const scrollPerItem = 600;
+        const loopDistance = totalItems * scrollPerItem;
+
+        // Step vector (matches React component exactly)
+        const stepX = 240;
+        const stepY = -84;
+        const stepZ = -288;
+
+        // --- State ---
+        let currentVariant = 'magnetic'; // 'magnetic' | 'uplift' | 'simple'
+        let scrollY = 0;
+        let smoothScroll = 0;
+        let rafId = null;
+        let mouseX = -10000;
+        let mouseY = -10000;
+
+        // --- Build Cards ---
+        const track = document.getElementById('track');
+        const duplicated = [...ITEMS, ...ITEMS];
+
+        duplicated.forEach((item, i) => {
+            const card = document.createElement('div');
+            card.className = 'card-3d';
+            card.dataset.index = i;
+            card.dataset.itemId = item.id;
+
+            // Index number overlay
+            const num = document.createElement('div');
+            num.className = 'index-number';
+            num.textContent = String((i % totalItems) + 1).padStart(2, '0');
+            card.appendChild(num);
+
+            // Image
+            const img = document.createElement('img');
+            img.className = 'card-image';
+            img.src = item.image;
+            img.alt = item.title;
+            card.appendChild(img);
+
+            // Gradient overlay
+            const grad = document.createElement('div');
+            grad.className = 'card-gradient';
+            card.appendChild(grad);
+
+            track.appendChild(card);
+        });
+
+        const cards = track.querySelectorAll('.card-3d');
+
+        // --- Positioning & Transform ---
+        function updateCards(scrollProgress, variant, mx, my) {
+            // Recalculate positions each frame
+            const loopedProgress = scrollProgress % loopDistance;
+            const t = loopedProgress / loopDistance; // 0..1
+
+            cards.forEach((card, i) => {
+                const baseX = i * stepX;
+                const baseY = i * stepY;
+                const baseZ = i * stepZ;
+
+                let scale = 1;
+                let upliftY = 0;
+
+                if (variant !== 'simple') {
+                    const rect = card.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    const dist = Math.sqrt(Math.pow(mx - centerX, 2) + Math.pow(my - centerY, 2));
+
+                    if (variant === 'magnetic') {
+                        // Closer = larger scale (1..1.5)
+                        const rawScale = 1 + Math.max(0, Math.min(1, 1 - dist / 400)) * 0.5;
+                        // Smooth spring-like interpolation
+                        scale = 1 + (rawScale - 1) * 0.3;
+                    } else if (variant === 'uplift') {
+                        // Closer = uplift (0..-100px)
+                        const rawUplift = -Math.max(0, Math.min(1, 1 - dist / 400)) * 100;
+                        upliftY = rawUplift * 0.3;
+                    }
+                }
+
+                // Base position is offset by scroll progress
+                const scrollOffset = t * totalItems;
+                const idx = i - scrollOffset;
+
+                const px = idx * stepX;
+                const py = idx * stepY + upliftY;
+                const pz = idx * stepZ;
+
+                card.style.transform = `translate3d(${px}px, ${py}px, ${pz}px) rotateY(-50deg) scale(${scale})`;
+            });
+        }
+
+        // --- Scroll Handler ---
+        function onScroll() {
+            scrollY = window.scrollY;
+        }
+
+        // --- Mouse Handler ---
+        function onMouseMove(e) {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        }
+
+        function onMouseLeave() {
+            mouseX = -10000;
+            mouseY = -10000;
+        }
+
+        // --- Animation Loop ---
+        function animate() {
+            // Spring lerp (matches framer-motion spring: mass=0.1, stiffness=100, damping=20)
+            const target = scrollY;
+            smoothScroll += (target - smoothScroll) * 0.08;
+
+            updateCards(smoothScroll, currentVariant, mouseX, mouseY);
+
+            rafId = requestAnimationFrame(animate);
+        }
+
+        // --- Variant Switcher ---
+        const variantBtns = document.querySelectorAll('.variant-btn');
+        variantBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                variantBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentVariant = btn.dataset.variant;
+            });
+        });
+
+        // --- Bind Events ---
+        window.addEventListener('scroll', onScroll, { passive: true });
+        const viewport = document.getElementById('viewport');
+        viewport.addEventListener('mousemove', onMouseMove);
+        viewport.addEventListener('mouseleave', onMouseLeave);
+
+        // --- Init ---
+        onScroll();
+        smoothScroll = scrollY;
+        animate();
+
+        // --- Resize handler (reposition on window resize) ---
+        window.addEventListener('resize', () => {
+            // Cards will recalc positions naturally in animation loop
+        });
+
+        // --- Modal Logic ---
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalImage = document.getElementById('modalImage');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalCounter = document.getElementById('modalCounter');
+        const modalClose = document.getElementById('modalClose');
+        const modalPrev = document.getElementById('modalPrev');
+        const modalNext = document.getElementById('modalNext');
+
+        let currentModalIndex = 0;
+
+        function openModal(index) {
+            const realIndex = index % totalItems;
+            const item = ITEMS[realIndex];
+            currentModalIndex = realIndex;
+
+            modalImage.src = item.image;
+            modalTitle.textContent = item.title;
+            modalCounter.textContent = `${String(realIndex + 1).padStart(2, '0')} / ${String(totalItems).padStart(2, '0')}`;
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function goToPrev() {
+            const newIndex = (currentModalIndex - 1 + totalItems) % totalItems;
+            openModal(newIndex);
+        }
+
+        function goToNext() {
+            const newIndex = (currentModalIndex + 1) % totalItems;
+            openModal(newIndex);
+        }
+
+        // Click on any card to open modal
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                const itemId = parseInt(card.dataset.itemId);
+                const index = ITEMS.findIndex(item => item.id === itemId);
+                if (index !== -1) {
+                    openModal(index);
+                }
+            });
+        });
+
+        // Modal controls
+        modalClose.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) closeModal();
+        });
+        modalPrev.addEventListener('click', goToPrev);
+        modalNext.addEventListener('click', goToNext);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!modalOverlay.classList.contains('active')) return;
+            if (e.key === 'Escape') closeModal();
+            if (e.key === 'ArrowLeft') goToPrev();
+            if (e.key === 'ArrowRight') goToNext();
+        });
+    </script>
+
+</body>
+</html>
+

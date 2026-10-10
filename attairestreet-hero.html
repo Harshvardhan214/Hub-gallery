@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AttaireStreet — Handmade Jewellery &amp; Resin Art</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+
+  :root{
+    --ivory:#FAF5EA;
+    --ivory-deep:#F1E9D8;
+    --ink:#1D2420;
+    --ink-soft:rgba(29,36,32,0.62);
+    --emerald:#12463A;
+    --emerald-deep:#0B2E26;
+    --gold:#B5893C;
+    --gold-soft:#D9B876;
+    --resin-teal:#2C7A73;
+    --rose:#B4614A;
+    --font-display:'Fraunces', Georgia, serif;
+    --font-body:'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  html,body{
+    background:var(--ivory);
+    color:var(--ink);
+    font-family:var(--font-body);
+    overflow-x:hidden;
+  }
+
+  a{color:inherit;}
+
+  /* ===== Promo bar ===== */
+  /* ===== Hero ===== */
+  .hero{
+    position:relative;
+    max-width:1320px;
+    margin:0 auto;
+    padding:2.5rem 2rem 4rem;
+    display:grid;
+    grid-template-columns:1fr;
+    gap:3rem;
+    align-items:center;
+  }
+  @media (min-width:960px){
+    .hero{
+      grid-template-columns:1.05fr 1fr;
+      padding:3.5rem 2rem 5rem;
+      gap:2rem;
+    }
+  }
+
+  .hero-copy{
+    order:2;
+    text-align:center;
+  }
+  @media (min-width:960px){.hero-copy{order:1;text-align:left;}}
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:0.55rem;
+    font-size:0.72rem;
+    font-weight:700;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--rose);
+    margin-bottom:1.3rem;
+    opacity:0;
+    animation:riseIn 0.7s ease-out 0.15s forwards;
+  }
+  .eyebrow::before{
+    content:'';
+    width:26px;height:1px;
+    background:var(--rose);
+  }
+
+  .hero-copy h1{
+    font-family:var(--font-display);
+    font-weight:500;
+    color:var(--emerald-deep);
+    font-size:clamp(2.5rem,5.2vw,4.4rem);
+    line-height:1.04;
+    letter-spacing:-0.01em;
+    opacity:0;
+    animation:riseIn 0.8s ease-out 0.3s forwards;
+  }
+  .hero-copy h1 .accent{
+    font-style:italic;
+    color:var(--gold);
+  }
+
+  .hero-copy p{
+    margin:1.5rem auto 0;
+    max-width:420px;
+    font-size:1rem;
+    line-height:1.75;
+    color:var(--ink-soft);
+    opacity:0;
+    animation:riseIn 0.8s ease-out 0.5s forwards;
+  }
+  @media (min-width:960px){.hero-copy p{margin:1.5rem 0 0;}}
+
+  .hero-actions{
+    margin-top:2.2rem;
+    display:flex;
+    gap:1rem;
+    justify-content:center;
+    flex-wrap:wrap;
+    opacity:0;
+    animation:riseIn 0.8s ease-out 0.65s forwards;
+  }
+  @media (min-width:960px){.hero-actions{justify-content:flex-start;}}
+
+  .btn-primary{
+    background:var(--emerald-deep);
+    color:var(--ivory);
+    border:1px solid var(--emerald-deep);
+    padding:0.85rem 1.9rem;
+    font-size:0.82rem;
+    font-weight:600;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    text-decoration:none;
+    border-radius:2px;
+    transition:background 0.25s, color 0.25s;
+  }
+  .btn-primary:hover{background:var(--emerald);}
+
+  .btn-ghost{
+    display:inline-flex;
+    align-items:center;
+    gap:0.5rem;
+    padding:0.85rem 0.3rem;
+    font-size:0.82rem;
+    font-weight:600;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    text-decoration:none;
+    color:var(--emerald-deep);
+    border-bottom:1px solid rgba(29,36,32,0.28);
+  }
+
+  .hero-stats{
+    margin-top:2.8rem;
+    display:flex;
+    gap:2.2rem;
+    justify-content:center;
+    opacity:0;
+    animation:riseIn 0.8s ease-out 0.8s forwards;
+  }
+  @media (min-width:960px){.hero-stats{justify-content:flex-start;}}
+  .stat-num{
+    font-family:var(--font-display);
+    font-size:1.5rem;
+    color:var(--emerald-deep);
+  }
+  .stat-label{
+    font-size:0.68rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-top:0.2rem;
+  }
+
+  /* ===== Visual / resin swirl signature ===== */
+  .hero-visual{
+    order:1;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    aspect-ratio:1/1;
+    max-width:480px;
+    margin:0 auto;
+  }
+  @media (min-width:960px){.hero-visual{order:2;}}
+
+  .swirl-ring{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background:
+      radial-gradient(circle at 30% 25%, rgba(217,184,118,0.55), transparent 42%),
+      radial-gradient(circle at 68% 72%, rgba(180,97,74,0.35), transparent 45%),
+      conic-gradient(from 210deg at 50% 50%,
+        var(--emerald-deep) 0deg,
+        var(--resin-teal) 70deg,
+        var(--emerald) 140deg,
+        var(--gold-soft) 200deg,
+        var(--resin-teal) 260deg,
+        var(--emerald-deep) 330deg,
+        var(--emerald-deep) 360deg);
+    filter:saturate(1.05);
+    animation:swirlRotate 40s linear infinite;
+    box-shadow:0 30px 60px -25px rgba(11,46,38,0.45);
+  }
+  .swirl-ring::after{
+    content:'';
+    position:absolute;
+    inset:14px;
+    border-radius:50%;
+    background:var(--ivory);
+  }
+  .swirl-veins{
+    position:absolute;
+    inset:14px;
+    border-radius:50%;
+    overflow:hidden;
+  }
+  .swirl-veins svg{width:100%;height:100%;display:block;}
+
+  .center-plate{
+    position:relative;
+    z-index:5;
+    width:63%;
+    aspect-ratio:1/1;
+    border-radius:50%;
+    background:var(--ivory);
+    border:1px solid rgba(29,36,32,0.08);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 12px 30px -10px rgba(29,36,32,0.18);
+    overflow:hidden; /* keeps slides clipped to the circle */
+  }
+  .plate-slider{
+    display: flex;
+    width:100%;
+    height:100%;
+    transition: transform 0.6s ease-in-out;
+  }
+  .plate-slide{
+    min-width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  .plate-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit:cover;
+    display: block;
+  }
+  /* Old opacity transition styles removed */
+  .plate-slide.is-active{
+  }
+
+  /* ---- slide navigation dots ---- */
+  .plate-dots{
+    position:absolute;
+    bottom:-10%;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:8px;
+    z-index:10;
+  }
+  .plate-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(29,36,32,0.25);
+    border:none;
+    cursor:pointer;
+    transition:background 0.3s, transform 0.3s;
+    padding:0;
+  }
+  .plate-dot.is-active {
+    background:var(--emerald-deep);
+    transform:scale(1.35);
+    box-shadow:0 0 0 2px var(--ivory), 0 0 0 4px var(--emerald-deep);
+  }
+  .plate-dot:hover{
+    background:var(--gold-soft);
+    transform:scale(1.2);
+  }
+
+  .float-badge{
+    position:absolute;
+    z-index:6;
+    background:var(--ivory);
+    border:1px solid rgba(29,36,32,0.1);
+    border-radius:999px;
+    padding:0.55rem 1.05rem;
+    font-size:0.72rem;
+    font-weight:700;
+    letter-spacing:0.04em;
+    color:var(--emerald-deep);
+    box-shadow:0 10px 24px -8px rgba(29,36,32,0.25);
+    display:flex;
+    align-items:center;
+    gap:0.4rem;
+  }
+  .float-badge.top{
+    top:2%;
+    right:-2%;
+    animation:floatY 5s ease-in-out infinite;
+  }
+  .float-badge.bottom{
+    bottom:4%;
+    left:-6%;
+    animation:floatY 5.5s ease-in-out infinite 0.6s;
+    color:var(--rose);
+  }
+  .float-badge .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--gold);
+  }
+
+  /* ===== Footer strip ===== */
+  .hero-footer{
+    max-width:1320px;
+    margin:0 auto;
+    padding:0 2rem 2.4rem;
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.8rem 2rem;
+    align-items:center;
+    justify-content:center;
+    border-top:1px solid rgba(29,36,32,0.1);
+    padding-top:1.6rem;
+  }
+  @media (min-width:960px){.hero-footer{justify-content:space-between;}}
+  .footer-item{
+    display:flex;
+    align-items:center;
+    gap:0.5rem;
+    font-size:0.72rem;
+    font-weight:600;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .footer-item svg{width:15px;height:15px;stroke-width:1.6;color:var(--gold);}
+
+  /* ===== Animations ===== */
+  @keyframes riseIn{
+    from{opacity:0;transform:translateY(16px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  @keyframes swirlRotate{
+    from{transform:rotate(0deg);}
+    to{transform:rotate(360deg);}
+  }
+  @keyframes floatY{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-8px);}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .swirl-ring{animation:none;}
+    .float-badge{animation:none;}
+    .eyebrow,.hero-copy h1,.hero-copy p,.hero-actions,.hero-stats{
+      animation:none;opacity:1;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow">Handmade with heart</div>
+      <h1>Jewellery &amp;<br>Resin Art <span class="accent">that speaks</span></h1>
+      <p>Every piece is poured, set, and finished by hand — heirloom jewellery and one-of-a-kind resin art, made slowly so it lasts.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary">SHOP JEWELLERY</a>
+        <a href="#" class="btn-ghost">EXPLORE RESIN ART</a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="stat-num">2,400+</div>
+          <div class="stat-label">Pieces gifted</div>
+        </div>
+        <div>
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Hand poured</div>
+        </div>
+        <div>
+          <div class="stat-num">4.9</div>
+          <div class="stat-label">Customer rating</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="swirl-ring"></div>
+      <div class="swirl-veins">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 90 C60 60, 90 110, 140 70 S 190 100, 210 60" stroke="#D9B876" stroke-width="1.4" fill="none" opacity="0.55"/>
+          <path d="M10 130 C70 150, 110 90, 160 140 S 200 120, 220 150" stroke="#B5893C" stroke-width="1" fill="none" opacity="0.4"/>
+          <path d="M0 50 C50 40, 80 80, 130 40 S 180 60, 200 30" stroke="#2C7A73" stroke-width="1" fill="none" opacity="0.3"/>
+        </svg>
+      </div>
+      <div class="center-plate" id="centerPlate">
+        <div class="plate-slider" id="slides">
+          <div class="plate-slide">
+            <img src="images/96.png" alt="Handmade gold and diamond ring"
+                 onerror="this.onerror=null;this.src='https://placehold.co/500x500/12463A/FAF5EA?text=AttaireStreet';">
+          </div>
+          <div class="plate-slide">
+            <img src="images/97.png" alt="AttaireStreet handmade earrings"
+                 onerror="this.onerror=null;this.src='https://placehold.co/500x500/2C7A73/FAF5EA?text=Earrings';">
+          </div>
+          <div class="plate-slide">
+            <img src="images/98.png" alt="AttaireStreet resin art piece"
+                 onerror="this.onerror=null;this.src='https://placehold.co/500x500/B4614A/FAF5EA?text=Resin+Art';">
+          </div>
+        </div>
+        <div class="plate-dots" id="plateDots"></div>
+      </div>
+      <div class="float-badge top"><span class="dot"></span>30% off today</div>
+      <div class="float-badge bottom"><span class="dot"></span>New: resin coasters</div>
+    </div>
+  </section>
+
+  <div class="hero-footer">
+    <div class="footer-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7 12 3 4 7"/><path d="M20 7v10l-8 4-8-4V7"/><path d="M12 11 4 7"/><path d="M12 11l8-4"/><path d="M12 11v10"/></svg>
+      Handcrafted in small batches
+    </div>
+    <div class="footer-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>
+      Free shipping over ₹1999
+    </div>
+    <div class="footer-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0z"/><path d="M12 7v5l3 3"/></svg>
+      Easy 7-day returns
+    </div>
+  </div>
+
+<script>
+  const slidesEl = document.getElementById('slides');
+  const slideEls = document.querySelectorAll('.plate-slide');
+  const dotsContainer = document.getElementById('plateDots');
+  const sliderContainer = document.getElementById('centerPlate');
+  
+  if (slidesEl && slideEls.length > 0 && dotsContainer && sliderContainer) {
+    const total = slideEls.length;
+    let current = 0;
+    let timer;
+    const AUTO_DELAY = 3500;
+
+    // Create dots
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'plate-dot' + (i === 0 ? ' is-active' : '');
+      dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+      dot.addEventListener('click', () => goTo(i));
+      dotsContainer.appendChild(dot);
+    }
+    const dotEls = dotsContainer.querySelectorAll('.plate-dot');
+
+    function updateStyles() {
+      slidesEl.style.transform = `translateX(-${current * 100}%)`;
+      dotEls.forEach((dot, i) => {
+        dot.classList.toggle('is-active', i === current);
+      });
+    }
+
+    function goTo(index) {
+      current = (index + total) % total; // handles negative indexes and looping
+      updateStyles();
+      resetTimer();
+    }
+
+    function next() {
+      goTo(current + 1);
+    }
+    
+    function startTimer() {
+      timer = setInterval(next, AUTO_DELAY);
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      startTimer();
+    }
+
+    // Pause on hover
+    sliderContainer.addEventListener('mouseenter', () => clearInterval(timer));
+    sliderContainer.addEventListener('mouseleave', startTimer);
+
+    // Initial setup
+    updateStyles();
+    startTimer();
+  }
+</script>
+</body>
+</html>

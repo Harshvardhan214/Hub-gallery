@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Diagonal Marquee Carousel</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  .marquee-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .marquee-rotated {
+    position: absolute;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 200vw;
+    transform: rotate(-25deg);
+  }
+
+  .marquee-row {
+    display: flex;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .marquee-track {
+    display: flex;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+
+  .marquee-track.left {
+    animation: marquee-left var(--speed) linear infinite;
+  }
+
+  .marquee-track.right {
+    animation: marquee-right var(--speed) linear infinite;
+  }
+
+  @keyframes marquee-left {
+    0%   { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-50%, 0, 0); }
+  }
+
+  @keyframes marquee-right {
+    0%   { transform: translate3d(-50%, 0, 0); }
+    100% { transform: translate3d(0, 0, 0); }
+  }
+
+  .marquee-group {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .marquee-card-slot {
+    flex-shrink: 0;
+    padding-right: 2rem;
+  }
+
+  .marquee-card {
+    position: relative;
+    height: 300px;
+    width: 400px;
+    flex-shrink: 0;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  .marquee-card img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .marquee-card .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .fade-top,
+  .fade-bottom {
+    pointer-events: none;
+    position: absolute;
+    inset-inline: 0;
+    z-index: 10;
+    height: 25%;
+  }
+
+  .fade-top {
+    top: 0;
+    background: linear-gradient(to bottom, #ffffff, transparent);
+  }
+
+  .fade-bottom {
+    bottom: 0;
+    background: linear-gradient(to top, #ffffff, transparent);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html, body { background: #0a0a0a; }
+    .fade-top { background: linear-gradient(to bottom, #0a0a0a, transparent); }
+    .fade-bottom { background: linear-gradient(to top, #0a0a0a, transparent); }
+  }
+</style>
+</head>
+<body>
+
+<div class="marquee-wrapper" id="marqueeWrapper">
+  <div class="marquee-rotated" id="marqueeRotated"></div>
+  <div class="fade-top"></div>
+  <div class="fade-bottom"></div>
+</div>
+
+<script>
+  const DEFAULT_CARDS = [
+    { id: 2, url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80", title: "Landscape" },
+    { id: 3, url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80", title: "Nature" },
+    { id: 4, url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80", title: "Forest" },
+    { id: 5, url: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&q=80", title: "Bridge" },
+    { id: 6, url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80", title: "Ocean" },
+    { id: 7, url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80", title: "Valley" },
+  ];
+
+  const config = {
+    cards: DEFAULT_CARDS,
+    angle: -25,
+    baseSpeed: 120,
+    alternateDirections: true,
+  };
+
+  function createCard(card) {
+    const wrap = document.createElement("div");
+    wrap.className = "marquee-card-slot";
+
+    const cardEl = document.createElement("div");
+    cardEl.className = "marquee-card";
+
+    const img = document.createElement("img");
+    img.src = card.url;
+    img.alt = card.title;
+    img.loading = "lazy";
+
+    const overlay = document.createElement("div");
+    overlay.className = "overlay";
+
+    cardEl.appendChild(img);
+    cardEl.appendChild(overlay);
+    wrap.appendChild(cardEl);
+    return wrap;
+  }
+
+  function createRow(cards, speed, direction) {
+    const row = document.createElement("div");
+    row.className = "marquee-row";
+
+    const track = document.createElement("div");
+    track.className = "marquee-track " + (direction === -1 ? "left" : "right");
+    track.style.setProperty("--speed", speed + "s");
+
+    // duplicate the card set once for a seamless loop
+    for (let copy = 0; copy < 2; copy++) {
+      const group = document.createElement("div");
+      group.className = "marquee-group";
+      cards.forEach((card) => group.appendChild(createCard(card)));
+      track.appendChild(group);
+    }
+
+    row.appendChild(track);
+    return row;
+  }
+
+  function buildMarquee() {
+    const container = document.getElementById("marqueeRotated");
+    container.style.transform = `rotate(${config.angle}deg)`;
+
+    const rowCards = [...config.cards, ...config.cards, ...config.cards];
+    const rowCardsReverse = [...rowCards].reverse();
+    const { baseSpeed, alternateDirections } = config;
+
+    container.appendChild(createRow(rowCards, baseSpeed, -1));
+    container.appendChild(
+      createRow(rowCardsReverse, Math.max(baseSpeed - 15, 20), alternateDirections ? 1 : -1)
+    );
+    container.appendChild(createRow(rowCards, baseSpeed + 15, -1));
+    container.appendChild(
+      createRow(rowCardsReverse, Math.max(baseSpeed - 6, 20), alternateDirections ? 1 : -1)
+    );
+    container.appendChild(createRow(rowCards, baseSpeed + 24, -1));
+  }
+
+  buildMarquee();
+</script>
+
+</body>
+</html>

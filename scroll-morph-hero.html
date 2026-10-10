@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Scroll Morph Hero</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  .hero {
+    position: relative;
+    width: 100%;
+    height: 800px;
+    max-height: 100vh;
+    background: #FAFAFA;
+    overflow: hidden;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+  }
+
+  .hero__stage {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px;
+  }
+
+  /* Intro text (fades out as circle morphs) */
+  .hero__intro {
+    position: absolute;
+    z-index: 0;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+    width: 100%;
+    padding: 0 16px;
+  }
+  .hero__intro h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: #1f2937;
+    filter: blur(10px);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s, filter 1s, transform 1s;
+  }
+  @media (min-width: 768px) {
+    .hero__intro h1 { font-size: 44px; }
+  }
+  .hero__intro p {
+    margin-top: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: #6b7280;
+    opacity: 0;
+    transition: opacity 1s;
+  }
+  .hero__intro.is-visible h1 {
+    opacity: 1;
+    filter: blur(0px);
+    transform: translateY(0);
+  }
+  .hero__intro.is-visible p {
+    opacity: 0.5;
+  }
+
+  /* Arc-active content (fades in once morphed) */
+  .hero__content {
+    position: absolute;
+    top: 10%;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    pointer-events: none;
+    padding: 0 16px;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  .hero__content h2 {
+    margin: 0 0 16px;
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #111827;
+  }
+  @media (min-width: 768px) {
+    .hero__content h2 { font-size: 48px; }
+  }
+  .hero__content p {
+    margin: 0;
+    max-width: 520px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #4b5563;
+  }
+  @media (min-width: 768px) {
+    .hero__content p { font-size: 16px; }
+  }
+
+  /* Cards */
+  .hero__cards {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .card {
+    position: absolute;
+    width: 60px;
+    height: 85px;
+    cursor: pointer;
+    will-change: transform, opacity;
+  }
+
+  .card__inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .card:hover .card__inner {
+    transform: rotateY(180deg);
+  }
+
+  .card__face {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    backface-visibility: hidden;
+  }
+  .card__face--front {
+    background: #e5e7eb;
+  }
+  .card__face--front img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .card__face--front::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.1);
+    transition: background 0.2s;
+  }
+  .card:hover .card__face--front::after {
+    background: transparent;
+  }
+  .card__face--back {
+    background: #111827;
+    border: 1px solid #374151;
+    transform: rotateY(180deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 16px;
+    text-align: center;
+  }
+  .card__face--back .eyebrow {
+    font-size: 8px;
+    font-weight: 700;
+    color: #60a5fa;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin: 0 0 4px;
+  }
+  .card__face--back .label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #fff;
+    margin: 0;
+  }
+
+  /* --- Modal / Popup --- */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(25, 33, 47, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 200;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal {
+    position: relative;
+    width: 90vw;
+    max-width: 640px;
+    max-height: 85vh;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.9) translateY(30px);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.2);
+  }
+
+  .modal-overlay.active .modal {
+    transform: scale(1) translateY(0);
+  }
+
+  .modal-image {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .modal-image { height: 220px; }
+  }
+
+  .modal-body {
+    padding: 1.5rem 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .modal-body h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #111827;
+    margin: 0 0 0.5rem;
+  }
+
+  .modal-body p {
+    font-size: 1rem;
+    color: #4b5563;
+    line-height: 1.6;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #e5e7eb;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(8px);
+    color: #374151;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-close:hover {
+    background: #fff;
+    transform: scale(1.05) rotate(90deg);
+  }
+</style>
+</head>
+<body>
+
+<div class="hero" id="hero">
+  <div class="hero__stage">
+
+    <div class="hero__intro" id="introText">
+      <h1>The future is built on AI.</h1>
+      <p>SCROLL TO EXPLORE</p>
+    </div>
+
+    <div class="hero__content" id="arcContent">
+      <h2>Explore Our Vision</h2>
+      <p>Discover a world where technology meets creativity.<br>
+      Scroll through our curated collection of innovations designed to shape the future.</p>
+    </div>
+
+    <div class="hero__cards" id="cardsLayer"></div>
+
+  </div>
+</div>
+
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modalClose" aria-label="Close modal">✕</button>
+    <img class="modal-image" id="modalImage" src="" alt="Popup image">
+    <div class="modal-body">
+      <h2 id="modalTitle"></h2>
+      <p id="modalDetails">This is a placeholder for the image details. Each card can have its own unique description and information displayed here.</p>
+    </div>
+  </div>
+</div>
+
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Config ----------
+  var TOTAL_IMAGES = 20;
+  var MAX_SCROLL = 3000;
+  var IMG_WIDTH = 60;
+  var IMG_HEIGHT = 85;
+
+  var IMAGES = [
+    "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=300&q=80",
+    "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=300&q=80",
+    "https://images.unsplash.com/photo-1497366216548-37526070297c?w=300&q=80",
+    "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=300&q=80",
+    "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=300&q=80",
+    "https://images.unsplash.com/photo-1506765515384-028b60a970df?w=300&q=80",
+    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=300&q=80",
+    "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=300&q=80",
+    "https://images.unsplash.com/photo-1500485035595-cbe6f645feb1?w=300&q=80",
+    "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=300&q=80",
+    "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&q=80",
+    "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=300&q=80",
+    "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=300&q=80",
+    "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=300&q=80",
+    "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=300&q=80",
+    "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?w=300&q=80",
+    "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=300&q=80",
+    "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=300&q=80",
+    "https://images.unsplash.com/photo-1523961131990-5ea7c61b2107?w=300&q=80",
+    "https://images.unsplash.com/photo-1496568816309-51d7c20e3b21?w=300&q=80"
+  ];
+
+  var lerp = function (start, end, t) { return start * (1 - t) + end * t; };
+  var clamp = function (v, min, max) { return Math.min(Math.max(v, min), max); };
+
+  // Map a value from one range to another, clamped to the output range
+  function mapRange(value, inMin, inMax, outMin, outMax) {
+    if (inMax === inMin) return outMin;
+    var t = clamp((value - inMin) / (inMax - inMin), 0, 1);
+    return outMin + (outMax - outMin) * t;
+  }
+
+  // ---------- Simple critically-damped spring (mirrors framer's useSpring) ----------
+  function createSpring(initial, stiffness, damping) {
+    var value = initial;
+    var velocity = 0;
+    var target = initial;
+    return {
+      setTarget: function (t) { target = t; },
+      get: function () { return value; },
+      snap: function (v) { value = v; target = v; velocity = 0; },
+      step: function (dt) {
+        // dt in seconds; simple semi-implicit Euler spring integration
+        var force = (target - value) * stiffness;
+        var damp = velocity * damping;
+        var accel = force - damp;
+        velocity += accel * dt;
+        value += velocity * dt;
+        return value;
+      }
+    };
+  }
+
+  // ---------- DOM setup ----------
+  var hero = document.getElementById("hero");
+  var introText = document.getElementById("introText");
+  var arcContent = document.getElementById("arcContent");
+  var cardsLayer = document.getElementById("cardsLayer");
+  var modalOverlay = document.getElementById("modalOverlay");
+  var modal = document.getElementById("modal");
+  var modalClose = document.getElementById("modalClose");
+  var modalImage = document.getElementById("modalImage");
+  var modalTitle = document.getElementById("modalTitle");
+  var modalDetails = document.getElementById("modalDetails");
+
+  var cards = [];
+  var scatterPositions = IMAGES.map(function () {
+    return {
+      x: (Math.random() - 0.5) * 1500,
+      y: (Math.random() - 0.5) * 1000,
+      rotation: (Math.random() - 0.5) * 180,
+      scale: 0.6,
+      opacity: 0
+    };
+  });
+
+  IMAGES.slice(0, TOTAL_IMAGES).forEach(function (src, i) {
+    var card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML =
+      '<div class="card__inner">' +
+        '<div class="card__face card__face--front"><img src="' + src + '" alt="hero-' + i + '" loading="lazy"></div>' +
+        '<div class="card__face card__face--back">' +
+          '<p class="eyebrow">View</p>' +
+          '<p class="label">Details</p>' +
+        '</div>' +
+      '</div>';
+    cardsLayer.appendChild(card);
+    card.addEventListener('click', function() {
+      openModal(i);
+    });
+
+    cards.push({
+      el: card,
+      spring: {
+        x: createSpring(scatterPositions[i].x, 40, 12),
+        y: createSpring(scatterPositions[i].y, 40, 12),
+        rotation: createSpring(scatterPositions[i].rotation, 40, 12),
+        scale: createSpring(scatterPositions[i].scale, 40, 12),
+        opacity: createSpring(scatterPositions[i].opacity, 40, 12)
+      }
+    });
+  });
+
+  // ---------- State ----------
+  var introPhase = "scatter"; // scatter -> line -> circle
+  var containerSize = { width: 0, height: 0 };
+  var scrollValue = 0; // raw virtual scroll 0..MAX_SCROLL
+  var mouseTargetX = 0;
+
+  var morphSpring = createSpring(0, 40, 20);   // 0 = circle, 1 = bottom arc
+  var rotateSpring = createSpring(0, 40, 20);  // scroll-driven shuffle
+  var mouseSpring = createSpring(0, 30, 20);   // parallax
+
+  // ---------- Resize ----------
+  function updateSize() {
+    containerSize.width = hero.offsetWidth;
+    containerSize.height = hero.offsetHeight;
+  }
+  updateSize();
+  var resizeObserver = new ResizeObserver(updateSize);
+  resizeObserver.observe(hero);
+
+  // ---------- Scroll (wheel + touch), scoped to container ----------
+  hero.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    scrollValue = clamp(scrollValue + e.deltaY, 0, MAX_SCROLL);
+  }, { passive: false });
+
+  var touchStartY = 0;
+  hero.addEventListener("touchstart", function (e) {
+    touchStartY = e.touches[0].clientY;
+  }, { passive: false });
+  hero.addEventListener("touchmove", function (e) {
+    e.preventDefault();
+    var touchY = e.touches[0].clientY;
+    var deltaY = touchStartY - touchY;
+    touchStartY = touchY;
+    scrollValue = clamp(scrollValue + deltaY, 0, MAX_SCROLL);
+  }, { passive: false });
+
+  // ---------- Mouse parallax ----------
+  hero.addEventListener("mousemove", function (e) {
+    var rect = hero.getBoundingClientRect();
+    var relativeX = e.clientX - rect.left;
+    var normalizedX = (relativeX / rect.width) * 2 - 1;
+    mouseTargetX = normalizedX * 100;
+  });
+
+  // ---------- Intro sequence timers ----------
+  setTimeout(function () {
+    introPhase = "line";
+  }, 500);
+  setTimeout(function () {
+    introPhase = "circle";
+    introText.classList.add("is-visible");
+  }, 2500);
+  // hide intro copy again once morph passes the halfway point (handled in loop)
+
+  // ---------- Modal Logic ----------
+  function openModal(index) {
+    var item = IMAGES[index];
+    modalImage.src = item;
+    modalTitle.textContent = "Innovation " + String(index + 1).padStart(2, '0');
+    modalOverlay.classList.add("active");
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modalOverlay.classList.remove("active");
+    document.body.style.overflow = '';
+  }
+
+  modalClose.addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', function(e) { if (e.target === modalOverlay) closeModal(); });
+
+  // ---------- Per-frame layout calculation ----------
+  function computeTarget(i, morphValue, rotateValue, parallaxValue) {
+    if (introPhase === "scatter") {
+      return scatterPositions[i];
+    }
+    if (introPhase === "line") {
+      var lineSpacing = 70;
+      var lineTotalWidth = TOTAL_IMAGES * lineSpacing;
+      var lineX = i * lineSpacing - lineTotalWidth / 2;
+      return { x: lineX, y: 0, rotation: 0, scale: 1, opacity: 1 };
+    }
+
+    // circle + arc morph
+    var isMobile = containerSize.width < 768;
+    var minDimension = Math.min(containerSize.width, containerSize.height);
+
+    var circleRadius = Math.min(minDimension * 0.35, 350);
+    var circleAngle = (i / TOTAL_IMAGES) * 360;
+    var circleRad = (circleAngle * Math.PI) / 180;
+    var circlePos = {
+      x: Math.cos(circleRad) * circleRadius,
+      y: Math.sin(circleRad) * circleRadius,
+      rotation: circleAngle + 90
+    };
+
+    var baseRadius = Math.min(containerSize.width, containerSize.height * 1.5);
+    var arcRadius = baseRadius * (isMobile ? 1.4 : 1.1);
+
+    var arcApexY = containerSize.height * (isMobile ? 0.35 : 0.25);
+    var arcCenterY = arcApexY + arcRadius;
+
+    var spreadAngle = isMobile ? 100 : 130;
+    var startAngle = -90 - (spreadAngle / 2);
+    var step = spreadAngle / (TOTAL_IMAGES - 1);
+
+    var scrollProgress = clamp(rotateValue / 360, 0, 1);
+    var maxRotation = spreadAngle * 0.8;
+    var boundedRotation = -scrollProgress * maxRotation;
+
+    var currentArcAngle = startAngle + (i * step) + boundedRotation;
+    var arcRad = (currentArcAngle * Math.PI) / 180;
+
+    var arcPos = {
+      x: Math.cos(arcRad) * arcRadius + parallaxValue,
+      y: Math.sin(arcRad) * arcRadius + arcCenterY,
+      rotation: currentArcAngle + 90,
+      scale: isMobile ? 1.4 : 1.8
+    };
+
+    return {
+      x: lerp(circlePos.x, arcPos.x, morphValue),
+      y: lerp(circlePos.y, arcPos.y, morphValue),
+      rotation: lerp(circlePos.rotation, arcPos.rotation, morphValue),
+      scale: lerp(1, arcPos.scale, morphValue),
+      opacity: 1
+    };
+  }
+
+  // ---------- Main animation loop ----------
+  var lastTime = performance.now();
+
+  function frame(now) {
+    var dt = Math.min((now - lastTime) / 1000, 0.05); // clamp dt for stability
+    lastTime = now;
+
+    // Update spring targets from current inputs
+    var morphTarget = mapRange(scrollValue, 0, 600, 0, 1);
+    var rotateTarget = mapRange(scrollValue, 600, 3000, 0, 360);
+
+    morphSpring.setTarget(morphTarget);
+    rotateSpring.setTarget(rotateTarget);
+    mouseSpring.setTarget(mouseTargetX);
+
+    var morphValue = morphSpring.step(dt);
+    var rotateValue = rotateSpring.step(dt);
+    var parallaxValue = mouseSpring.step(dt);
+
+    // Intro text opacity (fades as circle -> morph begins)
+    if (introPhase === "circle" && morphValue < 0.5) {
+      introText.querySelector("h1").style.opacity = String(clamp(1 - morphValue * 2, 0, 1));
+      introText.querySelector("h1").style.filter = "blur(0px)";
+      introText.querySelector("h1").style.transform = "translateY(0)";
+      introText.querySelector("p").style.opacity = String(clamp(0.5 - morphValue, 0, 0.5));
+    } else {
+      introText.querySelector("h1").style.opacity = "0";
+      introText.querySelector("h1").style.filter = "blur(10px)";
+      introText.querySelector("p").style.opacity = "0";
+    }
+
+    // Arc content opacity (fades in as morph completes)
+    var contentOpacity = mapRange(morphValue, 0.8, 1, 0, 1);
+    var contentY = mapRange(morphValue, 0.8, 1, 20, 0);
+    arcContent.style.opacity = String(contentOpacity);
+    arcContent.style.transform = "translateY(" + contentY + "px)";
+
+    // Update each card
+    for (var i = 0; i < cards.length; i++) {
+      var target = computeTarget(i, morphValue, rotateValue, parallaxValue);
+      var s = cards[i].spring;
+
+      s.x.setTarget(target.x);
+      s.y.setTarget(target.y);
+      s.rotation.setTarget(target.rotation);
+      s.scale.setTarget(target.scale);
+      s.opacity.setTarget(target.opacity);
+
+      var x = s.x.step(dt);
+      var y = s.y.step(dt);
+      var rotation = s.rotation.step(dt);
+      var scale = s.scale.step(dt);
+      var opacity = s.opacity.step(dt);
+
+      var el = cards[i].el;
+      el.style.transform =
+        "translate(-50%, -50%) translate(" + x + "px, " + y + "px) rotate(" + rotation + "deg) scale(" + scale + ")";
+      el.style.left = "50%";
+      el.style.top = "50%";
+      el.style.opacity = String(opacity);
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>

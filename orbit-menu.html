@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Orbit UI Premium</title>
+
+<style>
+body {
+    margin: 0;
+    background: radial-gradient(circle, #0a0a0a, #000);
+    color: white;
+    font-family: Arial;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Container */
+.container {
+    position: relative;
+    width: 420px;
+    height: 420px;
+}
+
+/* Start Button */
+.start-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: white;
+    color: black;
+    font-size: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: 0.3s;
+}
+
+/* Orbit */
+.orbit {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.orbit.show {
+    opacity: 1;
+    pointer-events: auto;
+    animation: rotate 12s linear infinite;
+}
+
+.orbit.paused {
+    animation-play-state: paused;
+}
+
+/* Nodes */
+.node {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 0 10px rgba(255,255,255,0.1);
+}
+
+.node:hover {
+    transform: scale(1.1);
+    background: #333;
+}
+
+/* Active */
+.node.active {
+    background: white;
+    color: black;
+    box-shadow: 0 0 20px rgba(255,255,255,0.5);
+}
+
+/* Card */
+.card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    background: rgba(20,20,20,0.9);
+    padding: 20px;
+    border-radius: 12px;
+    width: 230px;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(255,255,255,0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s;
+}
+
+.card.show {
+    opacity: 10;
+    transform: translate(-50%, -50%) scale(1);
+    z-index: 20;
+}
+
+/* Rotation */
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Back to Hub Button */
+.back-to-hub {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    background: rgba(20,20,20,0.9);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 100px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    text-decoration: none;
+    color: white;
+    font-size: 0.85rem;
+    font-family: Arial, sans-serif;
+    font-weight: 500;
+    transition: all 0.3s;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.back-to-hub:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255,255,255,0.3);
+    background: rgba(50,50,50,0.95);
+    box-shadow: 0 12px 35px rgba(255,255,255,0.1);
+}
+
+.back-to-hub svg {
+    width: 18px;
+    height: 18px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Start Button -->
+    <div class="start-btn" id="startBtn">+</div>
+
+    <!-- Card -->
+    <div class="card" id="card">
+        <h2 id="title"></h2>
+        <p id="desc"></p>
+    </div>
+
+    <!-- Orbit -->
+    <div class="orbit" id="orbit">
+        <div class="node" data-title="Design" data-desc="UI/UX design and system architecture.">D</div>
+        <div class="node" data-title="Development" data-desc="Coding and implementation.">Dev</div>
+        <div class="node" data-title="Testing" data-desc="Bug fixing and QA.">T</div>
+        <div class="node" data-title="Release" data-desc="Deploy to production.">R</div>
+        <div class="node" data-title="Planning" data-desc="Project planning phase.">P</div>
+    </div>
+
+</div>
+
+<script>
+const nodes = document.querySelectorAll(".node");
+const orbit = document.getElementById("orbit");
+const startBtn = document.getElementById("startBtn");
+const card = document.getElementById("card");
+
+const title = document.getElementById("title");
+const desc = document.getElementById("desc");
+
+let isOpen = false;
+let activeNode = null;
+
+/* 🔵 Perfect Circular Positioning */
+const radius = 180;
+const center = 210;
+const total = nodes.length;
+
+nodes.forEach((node, i) => {
+    const angle = (i / total) * (2 * Math.PI);
+
+    const x = center + radius * Math.cos(angle) - 30;
+    const y = center + radius * Math.sin(angle) - 30;
+
+    node.style.left = x + "px";
+    node.style.top = y + "px";
+});
+
+/* 🔘 Toggle Button */
+startBtn.addEventListener("click", () => {
+    isOpen = !isOpen;
+
+    orbit.classList.toggle("show");
+
+    // Change + to ×
+    startBtn.innerText = isOpen ? "✕" : "+";
+
+    // Reset everything when closing
+    if (!isOpen) {
+        orbit.classList.remove("paused");
+        card.classList.remove("show");
+        nodes.forEach(n => n.classList.remove("active"));
+        activeNode = null;
+    }
+});
+
+/* 🎯 Node Click */
+nodes.forEach(node => {
+    node.addEventListener("click", () => {
+
+        // If same node clicked again → close card
+        if (activeNode === node) {
+            card.classList.remove("show");
+            node.classList.remove("active");
+            orbit.classList.remove("paused");
+            activeNode = null;
+            return;
+        }
+
+        // New selection
+        orbit.classList.add("paused");
+
+        nodes.forEach(n => n.classList.remove("active"));
+        node.classList.add("active");
+
+        title.innerText = node.dataset.title;
+        desc.innerText = node.dataset.desc;
+
+        card.classList.add("show");
+
+        activeNode = node;
+    });
+});
+</script>
+
+<!-- Back to Hub Button -->
+<a href="components-hub.html" class="back-to-hub">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+    <span>Components Hub</span>
+</a>
+
+</body>
+</html>

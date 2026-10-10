@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pixel Glitch Hero — Spider‑Man</title>
+<style>
+  :root{
+    --bg-dark: #0a0a0a;
+    --spider-red: #e63946;
+    --spider-blue: #1d3557;
+    --spider-accent: #a8dadc;
+    --panel: #111;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:var(--bg-dark);
+    font-family:'Arial Black','Helvetica Neue',Arial,sans-serif;
+    overflow:hidden;
+  }
+  .hero{
+    position:relative;
+    width:100%;
+    height:100vh;
+    min-height:560px;
+    overflow:hidden;
+    background:#0a0a0a;
+  }
+  canvas#stage{
+    position:absolute;
+    top:0; left:0;
+    width:100%; height:100%;
+    display:block;
+  }
+  .vignette{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0,0,0,0.5) 85%, rgba(0,0,0,0.85) 100%),
+      linear-gradient(90deg, rgba(0,0,0,.4) 0%, rgba(0,0,0,0) 15%, rgba(0,0,0,0) 85%, rgba(0,0,0,.5) 100%);
+    pointer-events:none;
+    z-index:2;
+  }
+  .scanlines{
+    position:absolute; inset:0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events:none;
+    z-index:3;
+    mix-blend-mode:overlay;
+    opacity:0.3;
+  }
+  .headline{
+    position:absolute;
+    left:6%;
+    bottom:9%;
+    z-index:5;
+    margin:0;
+    font-size:clamp(2.5rem, 9vw, 7.5rem);
+    line-height:0.85;
+    letter-spacing:-0.02em;
+    color:var(--spider-red);
+    text-transform:uppercase;
+    font-weight:900;
+    pointer-events:none;
+    text-shadow:
+      0 0 10px rgba(230,57,70,0.3),
+      2px 2px 0 rgba(0,0,0,.5);
+  }
+  .headline .accent{
+    color:var(--spider-blue);
+    display:block;
+    font-size:0.55em;
+    letter-spacing:0.15em;
+    margin-top:8px;
+  }
+  .eyebrow{
+    position:absolute;
+    top:7%;
+    left:6%;
+    z-index:5;
+    color:rgba(255,255,255,.85);
+    font-family:'Courier New', monospace;
+    font-size:0.8rem;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+  }
+  .cta{
+    position:absolute;
+    right:6%;
+    bottom:9%;
+    z-index:5;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    color:rgba(255,255,255,.8);
+    font-family:'Courier New', monospace;
+    font-size:0.75rem;
+    letter-spacing:0.15em;
+    text-transform:uppercase;
+  }
+  .cta button{
+    background:var(--spider-red);
+    color:#fff;
+    border:none;
+    padding:14px 26px;
+    font-family:inherit;
+    font-weight:700;
+    letter-spacing:0.15em;
+    cursor:pointer;
+    border-radius:2px;
+    transition:transform .15s ease, background .15s ease;
+    box-shadow:0 0 20px rgba(230,57,70,0.3);
+  }
+  .cta button:hover{ background:#c1121f; transform:translateY(-2px); box-shadow:0 0 30px rgba(230,57,70,0.5); }
+
+  @media (max-width:640px){
+    .cta{ display:none; }
+    .headline .accent{ font-size:0.4em; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <canvas id="stage"></canvas>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+  <div class="eyebrow">// signal_lost — reconstructing</div>
+  <h1 class="headline">
+    SPIDER‑MAN
+    <span class="accent">// GLITCH PROTOCOL</span>
+  </h1>
+  <div class="cta">
+    <span>001 / half‑face reconstruction</span>
+    <button id="rerun">RE‑RUN</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   Spider-Man Half-Face Pixel Glitch
+   The left half shows Spider-Man's face cleanly.
+   The right half of his face is consumed by a
+   data-corrupted glitch zone.
+========================================================= */
+const IMAGE_URL = "images/spiderman.jpg";
+
+const canvas = document.getElementById('stage');
+const ctx = canvas.getContext('2d');
+let W, H, DPR;
+let img = new Image();
+// No crossOrigin needed for local images
+let imgLoaded = false;
+
+function resize(){
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = canvas.clientWidth = canvas.parentElement.clientWidth;
+  H = canvas.clientHeight = canvas.parentElement.clientHeight;
+  canvas.width = W * DPR;
+  canvas.height = H * DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+img.onload = () => { imgLoaded = true; };
+img.onerror = () => { imgLoaded = false; };
+img.src = IMAGE_URL;
+
+// ---- glitch column config ----
+const SPLIT = 0.48;          // split point — left 48% clean, right 52% glitch
+const N_COLS = 44;           // number of vertical glitch strips
+let colOffsets = [];
+let colSeeds = [];
+
+function initCols(){
+  colOffsets = new Array(N_COLS).fill(0);
+  colSeeds = new Array(N_COLS).fill(0).map(() => Math.random() * 1000);
+}
+initCols();
+
+function drawBackgroundGradient(){
+  // Dark atmospheric background — deep red/blue blend
+  const g = ctx.createRadialGradient(W*0.5, H*0.5, 0, W*0.5, H*0.5, Math.max(W,H)*0.8);
+  g.addColorStop(0, '#1a1a2e');
+  g.addColorStop(0.4, '#16213e');
+  g.addColorStop(0.7, '#0f0f1a');
+  g.addColorStop(1, '#050508');
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,W,H);
+}
+
+function drawCleanPortion(){
+  if(!imgLoaded) return;
+  const cleanW = W * SPLIT;
+
+  // Cover-fit the image so Spider-Man's face is centered at the split
+  // We want his face to be prominent — scale to fill width, centered vertically
+  const imgAspect = img.width / img.height;
+  const zoneAspect = cleanW / H;
+
+  let sx, sy, sw, sh;
+  let dx, dy, dw, dh;
+
+  if (imgAspect > zoneAspect) {
+    // Image is wider — crop left/right, fill height
+    sh = img.height;
+    sw = sh * (cleanW / H);
+    sx = (img.width - sw) / 2;
+    sy = 0;
+    dh = H;
+    dw = cleanW;
+    dx = 0;
+    dy = 0;
+  } else {
+    // Image is taller — crop top/bottom, fill width
+    sw = img.width;
+    sh = sw * (H / cleanW);
+    sx = 0;
+    sy = (img.height - sh) / 2;
+    dw = cleanW;
+    dh = H;
+    dx = 0;
+    dy = 0;
+  }
+
+  // Shift the source crop to center the face at the split line
+  // Spider-Man's face is typically in the upper-center of a portrait
+  // Shift the crop left by ~8% of width so the face center aligns near the split
+  const faceShift = img.width * 0.04;
+  sx = Math.max(0, Math.min(img.width - sw, sx + faceShift));
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, cleanW, H);
+  ctx.clip();
+
+  // Draw the image in full color — no tint!
+  ctx.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh);
+
+  // Subtle contrast boost
+  ctx.globalCompositeOperation = 'overlay';
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  ctx.fillRect(0, 0, cleanW, H);
+  ctx.globalCompositeOperation = 'source-over';
+
+  ctx.restore();
+}
+
+function drawGlitchZone(t){
+  const startX = W * SPLIT;
+  const zoneW = W - startX;
+  const colW = zoneW / N_COLS;
+  const blockH = 10; // smaller blocks for more detail
+
+  // Time-based intensity pulsing
+  const intensity = 0.65 + Math.sin(t * 0.0008) * 0.35;
+
+  for(let i = 0; i < N_COLS; i++){
+    const x = startX + i * colW;
+
+    // Each column has its own wave and drift for organic feel
+    const wave = Math.sin(t * 0.0012 + colSeeds[i] * 0.5) * 0.5 + 0.5;
+    const drift = (t * 0.015 + colSeeds[i] * 50 + Math.sin(t * 0.001 + i) * 100) % H;
+    const speed = 0.5 + wave * 0.8;
+
+    for(let y = 0; y < H; y += blockH){
+      const shiftedY = (y + drift * speed) % H;
+
+      // Color palette: Spider-Man reds and blues with some electric accents
+      const colorChoice = Math.sin(t * 0.001 + i * 0.3 + y * 0.005);
+      let hue, sat, light, alpha;
+
+      if (colorChoice > 0.3) {
+        // Red zone
+        hue = 350 + Math.sin(t * 0.0015 + i * 0.5) * 15;
+        sat = 80 + Math.sin(t * 0.002 + i) * 20;
+        light = 35 + wave * 25 + Math.sin(y * 0.03 + t * 0.002) * 10;
+        alpha = 0.5 + Math.sin(t * 0.0025 + i + y * 0.01) * 0.3;
+      } else if (colorChoice > -0.2) {
+        // Blue zone
+        hue = 210 + Math.sin(t * 0.0018 + i * 0.4) * 20;
+        sat = 70 + Math.sin(t * 0.0022 + i * 1.5) * 25;
+        light = 25 + wave * 30 + Math.sin(y * 0.04 + t * 0.001) * 8;
+        alpha = 0.45 + Math.sin(t * 0.003 + i + y * 0.015) * 0.25;
+      } else {
+        // Electric white / accent
+        hue = 0;
+        sat = 0;
+        light = 60 + wave * 35 + Math.sin(t * 0.004 + i * 2) * 15;
+        alpha = 0.3 + Math.sin(t * 0.005 + i * 3 + y * 0.02) * 0.2;
+      }
+
+      ctx.fillStyle = `hsla(${hue}, ${sat}%, ${Math.max(5, Math.min(80, light))}%, ${Math.max(0.1, Math.min(1, alpha * intensity))})`;
+      ctx.fillRect(x, shiftedY, colW + 0.5, blockH + 0.5);
+    }
+
+    // Random bright signal streaks — red and blue
+    const streakTrigger = Math.sin(t * 0.003 + colSeeds[i] * 0.7);
+    if (streakTrigger > 0.92){
+      const streakColor = i % 2 === 0
+        ? `rgba(230,57,70,${0.2 + wave * 0.3})`
+        : `rgba(29,53,87,${0.2 + wave * 0.25})`;
+      ctx.fillStyle = streakColor;
+      ctx.fillRect(x, (drift * 2) % H, colW + 0.5, H * 0.15);
+    }
+
+    // Occasional horizontal "slice" glitch — thin bright line
+    if (Math.sin(t * 0.005 + colSeeds[i] * 1.2) > 0.96){
+      ctx.fillStyle = 'rgba(168,218,220,0.6)';
+      const sliceY = (drift * 3) % H;
+      ctx.fillRect(x, sliceY, colW + 0.5, 2);
+    }
+  }
+
+  // ---- Seam transition: clean → glitch ----
+  const seamWidth = 40;
+  const seam = ctx.createLinearGradient(startX - seamWidth, 0, startX + seamWidth, 0);
+  seam.addColorStop(0, 'rgba(0,0,0,0)');
+  seam.addColorStop(0.3, `rgba(230,57,70,${0.08 + Math.sin(t*0.002)*0.04})`);
+  seam.addColorStop(0.5, `rgba(168,218,220,${0.12 + Math.sin(t*0.003)*0.06})`);
+  seam.addColorStop(0.7, `rgba(230,57,70,${0.08 + Math.sin(t*0.0025)*0.04})`);
+  seam.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = seam;
+  ctx.fillRect(startX - seamWidth, 0, seamWidth * 2, H);
+
+  // Glitchy horizontal "jitter" lines at the seam
+  const jitterCount = 4 + Math.floor(Math.sin(t * 0.002) * 2);
+  for (let j = 0; j < jitterCount; j++) {
+    const jy = (Math.sin(t * 0.004 + j * 1.7) * 0.5 + 0.5) * H;
+    const jw = 2 + Math.sin(t * 0.01 + j * 3) * 1;
+    const jx = startX - 10 + Math.sin(t * 0.006 + j * 2.3) * 20;
+    ctx.fillStyle = `rgba(168,218,220,${0.15 + Math.sin(t*0.005 + j)*0.1})`;
+    ctx.fillRect(jx, jy, 30 + j * 8, jw);
+  }
+
+  // ---- Pixel "bleeding" from the seam into the clean zone ----
+  if (Math.sin(t * 0.002) > 0.7) {
+    for (let b = 0; b < 3; b++) {
+      const by = (Math.sin(t * 0.003 + b * 2.1) * 0.5 + 0.5) * H;
+      const bsize = 3 + Math.sin(t * 0.007 + b) * 2;
+      ctx.fillStyle = `rgba(230,57,70,${0.05 + Math.sin(t*0.004 + b)*0.03})`;
+      ctx.fillRect(startX - bsize * 3 - Math.sin(t*0.005 + b)*5, by, bsize, bsize);
+    }
+  }
+}
+
+function tryDrawImageOnGlitch(t){
+  // Try to overlay parts of the image onto the glitch zone for a partial reveal effect
+  if(!imgLoaded) return;
+  const startX = W * SPLIT;
+  const zoneW = W - startX;
+  const imgAspect = img.width / img.height;
+  const zoneAspect = zoneW / H;
+
+  let sx, sy, sw, sh, dx, dy, dw, dh;
+
+  if (imgAspect > zoneAspect) {
+    sh = img.height;
+    sw = sh * (zoneW / H);
+    sx = (img.width - sw) / 2;
+    sy = 0;
+    dh = H;
+    dw = zoneW;
+    dx = startX;
+    dy = 0;
+  } else {
+    sw = img.width;
+    sh = sw * (H / zoneW);
+    sx = 0;
+    sy = (img.height - sh) / 2;
+    dw = zoneW;
+    dh = H;
+    dx = startX;
+    dy = 0;
+  }
+
+  // Shift the source crop to match the clean portion's faceShift
+  const faceShift = img.width * 0.04;
+  sx = Math.max(0, Math.min(img.width - sw, sx + faceShift));
+
+  ctx.save();
+
+  // Only draw small, time-varying slices of the image in the glitch zone
+  // Creates a "trying to reconstruct" effect
+  const sliceCount = 5 + Math.floor(Math.sin(t * 0.001) * 3);
+  for (let s = 0; s < sliceCount; s++) {
+    const sliceY = (Math.sin(t * 0.002 + s * 1.3 + colSeeds[s % N_COLS]) * 0.5 + 0.5) * H;
+    const sliceH = 3 + Math.sin(t * 0.005 + s * 2.1) * 2;
+    const sliceAlpha = 0.15 + Math.sin(t * 0.003 + s * 1.7) * 0.1;
+
+    ctx.globalAlpha = Math.max(0, sliceAlpha);
+    ctx.drawImage(
+      img,
+      sx, sy + (sliceY / H) * sh, sw, (sliceH / H) * sh,
+      dx, sliceY, dw, sliceH
+    );
+  }
+  ctx.restore();
+}
+
+function frame(t){
+  drawBackgroundGradient();
+  drawCleanPortion();
+  drawGlitchZone(t);
+  tryDrawImageOnGlitch(t);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+document.getElementById('rerun').addEventListener('click', () => {
+  initCols();
+});
+</script>
+</body>
+</html>
+

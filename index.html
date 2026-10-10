@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animated Navigation Menu</title>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-page: #f9fafb;
+            --bg-card: #ffffff;
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --grid-color: rgba(0, 0, 0, 0.05);
+            --accent: #2563eb;
+            --sidebar-bg: #ffffff;
+            --hover-bg: #f3f4f6;
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            --bg-page: #111827;
+            --bg-card: #1f2937;
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --grid-color: rgba(255, 255, 255, 0.05);
+            --accent: #3b82f6;
+            --sidebar-bg: #1f2937;
+            --hover-bg: #374151;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Orthogonal Grid Background */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .grid-bg svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Header */
+        header {
+            position: relative;
+            z-index: 20;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+        }
+
+        .icon-btn {
+            background: var(--bg-card);
+            border: none;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: var(--text-primary);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.1);
+            background-color: var(--hover-bg);
+        }
+
+        .icon-btn:active {
+            transform: scale(0.95);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Sidebar Navigation */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 30;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 320px;
+            background-color: var(--sidebar-bg);
+            z-index: 40;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav.active {
+            transform: translateX(0);
+        }
+
+        .nav-header {
+            margin-top: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .nav-header h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+        }
+
+        .accent-bar {
+            height: 4px;
+            width: 0;
+            background-color: var(--accent);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            transition: width 0.6s 0.3s ease-out;
+        }
+
+        nav.active .accent-bar {
+            width: 80px;
+        }
+
+        .menu-list {
+            list-style: none;
+        }
+
+        .menu-item {
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.4s, transform 0.4s;
+        }
+
+        nav.active .menu-item {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+            gap: 1rem;
+        }
+
+        .menu-link:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .icon-wrapper {
+            background: var(--hover-bg);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            transition: all 0.3s;
+        }
+
+        .menu-link:hover .icon-wrapper {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.15) rotate(8deg);
+        }
+
+        /* Close Button inside Nav */
+        .close-nav {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: var(--hover-bg);
+            border-radius: 50%;
+            padding: 0.5rem;
+            border: none;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: transform 0.3s;
+        }
+
+        .close-nav:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* Drag hint */
+        .drag-hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            right: 2rem;
+            padding: 1rem;
+            background: var(--hover-bg);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Back to Hub Button */
+        .back-to-hub {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--grid-color);
+            border-radius: 100px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            text-decoration: none;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            backdrop-filter: blur(12px);
+        }
+
+        .back-to-hub:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            box-shadow: 0 12px 35px rgba(37,99,235,0.2);
+        }
+
+        .back-to-hub i {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Main Content */
+        main {
+            position: relative;
+            z-index: 10;
+            max-width: 56rem;
+            margin: 3rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .content-card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        .content-card h2, .content-card h3 { margin-bottom: 1rem; }
+        .content-card p { color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem; }
+        .content-card ul { list-style: none; color: var(--text-secondary); }
+        .content-card li { margin-bottom: 0.5rem; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-bg">
+        <svg xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="1" class="grid-line" style="color: var(--grid-color)"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+    </div>
+
+    <header>
+        <button class="icon-btn" id="menuToggle" aria-label="Open Menu">
+            <i data-lucide="menu"></i>
+        </button>
+
+        <h1>Menu Demo</h1>
+
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle Theme">
+            <i data-lucide="moon" id="themeIcon"></i>
+        </button>
+    </header>
+
+    <div class="overlay" id="overlay"></div>
+
+    <nav id="sidebar">
+        <button class="close-nav" id="closeBtn">
+            <i data-lucide="x"></i>
+        </button>
+
+        <div class="nav-header">
+            <h2>Navigation</h2>
+            <div class="accent-bar"></div>
+        </div>
+
+        <ul class="menu-list">
+            <li class="menu-item" style="transition-delay: 0.1s;">
+                <a href="components-hub.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="layout-dashboard"></i></div>
+                    <span>Components Hub</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.18s;">
+                <a href="#home" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="home"></i></div>
+                    <span>Home</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.26s;">
+                <a href="#about" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="user"></i></div>
+                    <span>About</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.34s;">
+                <a href="orbit-menu.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="orbit"></i></div>
+                    <span>Orbit Menu</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.42s;">
+                <a href="b.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="trending-up"></i></div>
+                    <span>IG Slider</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.50s;">
+                <a href="c.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="sparkles"></i></div>
+                    <span>Three.js Hero</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.58s;">
+                <a href="harsh.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="clapperboard"></i></div>
+                    <span>Cinematographer</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.66s;">
+                <a href="hero-pixel-glitch.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="scan-line"></i></div>
+                    <span>Pixel Glitch Hero</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.74s;">
+                <a href="attairestreet-hero.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="sparkles"></i></div>
+                    <span>AttaireStreet</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.82s;">
+                <a href="collection-section.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="layers-3"></i></div>
+                    <span>Collections</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.90s;">
+                <a href="jewelry-shop-real.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="gem"></i></div>
+                    <span>Jewelry Shop</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.98s;">
+                <a href="diagonal-marquee-carousel.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="image"></i></div>
+                    <span>Diagonal Marquee</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 1.06s;">
+                <a href="scroll-morph-hero.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="album"></i></div>
+                    <span>Scroll Morph Hero</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="drag-hint">
+            💡 Swipe left to close
+        </div>
+    </nav>
+
+    <main>
+        <div class="content-card">
+            <h2>Welcome to the Animated Menu</h2>
+            <p>Click the menu button in the top-left corner to open the animated navigation menu. Toggle between light and dark modes using the theme button in the top-right corner.</p>
+            <p>The background features an orthogonal grid pattern that adapts to the current theme. You can also swipe the menu left to close it on mobile!</p>
+        </div>
+
+        <div class="content-card" style="animation-delay: 0.2s;">
+            <h3>Features</h3>
+            <ul>
+                <li>• Staggered entrance animations</li>
+                <li>• Swipe-to-close functionality</li>
+                <li>• Modern CSS Variables for Theming</li>
+                <li>• Smooth Bezier transitions</li>
+                <li>• Responsive layout</li>
+                <li>• Grid background logic</li>
+            </ul>
+        </div>
+    </main>
+
+    <!-- Back to Hub Button -->
+    <a href="components-hub.html" class="back-to-hub">
+        <i data-lucide="layout-dashboard"></i>
+        <span>Components Hub</span>
+    </a>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const menuToggle = document.getElementById('menuToggle');
+        const closeBtn = document.getElementById('closeBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        const toggleMenu = (forceState) => {
+            const isOpen = forceState !== undefined ? forceState : !sidebar.classList.contains('active');
+            sidebar.classList.toggle('active', isOpen);
+            overlay.classList.toggle('active', isOpen);
+        };
+
+        menuToggle.addEventListener('click', () => toggleMenu(true));
+        closeBtn.addEventListener('click', () => toggleMenu(false));
+        overlay.addEventListener('click', () => toggleMenu(false));
+
+        // Theme Toggle Logic
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.body.getAttribute('data-theme') === 'dark';
+            document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            themeIcon.setAttribute('data-lucide', isDark ? 'moon' : 'sun');
+            lucide.createIcons();
+        });
+
+        // Swipe to close functionality (Simplified Mobile Drag)
+        let touchStartX = 0;
+        sidebar.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+        sidebar.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 70) toggleMenu(false); // Swiped left
+        });
+    </script>
+</body>
+</html>

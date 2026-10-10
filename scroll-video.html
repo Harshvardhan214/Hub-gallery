@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scroll-controlled video</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 400vh; /* tall scroll track — increase for a longer/slower scrub */
+    background: #000;
+  }
+
+  #video-stage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 0;
+  }
+
+  #bg-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  #progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: #ffffff;
+    width: 0%;
+    z-index: 10;
+    transition: width 0.05s linear;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .content h1 {
+    font-size: clamp(2rem, 6vw, 4.5rem);
+    font-weight: 600;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+    letter-spacing: -0.02em;
+  }
+
+  .content p {
+    margin-top: 1rem;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    opacity: 0.85;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  }
+
+  #hint {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 0.9rem;
+    opacity: 0.7;
+    z-index: 10;
+    animation: bob 1.8s ease-in-out infinite;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translate(-50%, 0); }
+    50% { transform: translate(-50%, 8px); }
+  }
+
+  /* Back to Hub Button */
+  .back-to-hub {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.25rem;
+    background: rgba(30, 30, 40, 0.8);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 100px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    text-decoration: none;
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s;
+    backdrop-filter: blur(12px);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  .back-to-hub:hover {
+    transform: translateY(-3px);
+    border-color: rgba(99, 102, 241, 0.6);
+    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.3);
+  }
+</style>
+</head>
+<body>
+
+  <div id="video-stage">
+    <video id="bg-video" muted playsinline preload="auto">
+      <source src="images/15e1dca48d_tanjiro-kamado-flame-breathing-live-wallpaper-wallsflow-com.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <div id="progress-bar"></div>
+  <a href="components-hub.html" class="back-to-hub" target="_blank">← Back to Hub</a>
+  <div id="hint">scroll ↓</div>
+
+  <section class="content">
+    <div>
+      <h1>Scroll to play</h1>
+      <p>The video below is scrubbed by how far you've scrolled.</p>
+    </div>
+  </section>
+
+  <section class="content"></section>
+
+  <section class="content">
+    <div>
+      <h1>Keep going</h1>
+      <p>Every pixel of scroll maps to a moment in the clip.</p>
+    </div>
+  </section>
+
+  <section class="content">
+    <div>
+      <h1>The end</h1>
+      <p>You've reached the bottom of the video.</p>
+    </div>
+  </section>
+
+  <script>
+    const video = document.getElementById('bg-video');
+    const progressBar = document.getElementById('progress-bar');
+    const hint = document.getElementById('hint');
+    let duration = 0;
+    let ticking = false;
+
+    video.addEventListener('loadedmetadata', () => {
+      duration = video.duration;
+    });
+
+    function updateVideo() {
+      const scrollTop = window.scrollY;
+      const scrollHeight = document.body.scrollHeight - window.innerHeight;
+      const fraction = Math.min(Math.max(scrollTop / scrollHeight, 0), 1);
+
+      if (duration) {
+        video.currentTime = fraction * duration;
+      }
+
+      progressBar.style.width = (fraction * 100) + '%';
+      hint.style.opacity = fraction > 0.02 ? '0' : '0.7';
+
+      ticking = false;
+    }
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(updateVideo);
+        ticking = true;
+      }
+    });
+
+    // In case metadata loads after first scroll attempt
+    video.addEventListener('canplay', updateVideo);
+  </script>
+
+</body>
+</html>

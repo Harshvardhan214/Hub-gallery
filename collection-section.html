@@ -1,0 +1,639 @@
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    :root{
+    --ivory:#F4EEE3;
+    --maroon:#4E1523;
+    --maroon-deep:#33101A;
+    --gold:#C9A24A;
+    --gold-light:#E7CE8C;
+    --teal:#2F6B67;
+    --teal-deep:#1E4644;
+    --ink:#1F1611;
+    --rose:#A9584F;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    background:var(--ivory);
+    color:var(--ink);
+    font-family:'Jost',sans-serif;
+    padding:60px 20px;
+}
+
+.wrap{
+    max-width:1300px;
+    margin:auto;
+}
+
+/*====================
+Heading
+=====================*/
+
+.eyebrow{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    font-size:12px;
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    color:var(--rose);
+    margin-bottom:18px;
+}
+
+.eyebrow::before{
+    content:"";
+    width:35px;
+    height:1px;
+    background:var(--rose);
+}
+
+h1{
+    font-family:'Cormorant Garamond',serif;
+    font-size:56px;
+    font-weight:500;
+    line-height:1.05;
+    color:var(--maroon-deep);
+    margin-bottom:16px;
+}
+
+h1 em{
+    color:var(--gold);
+    font-style:italic;
+}
+
+.sub{
+    max-width:520px;
+    line-height:1.8;
+    color:#675a51;
+    margin-bottom:50px;
+}
+
+/*====================
+GRID
+=====================*/
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:20px;
+}
+
+.tile-link{
+    display:block;
+    text-decoration:none;
+    color:inherit;
+}
+
+/* Row 1 */
+
+.tile-large{
+    grid-column:span 3;
+}
+
+/* Row 2 */
+
+.tile-half{
+    grid-column:span 2;
+}
+
+.tile-full{
+    grid-column:span 2;
+}
+
+.section-divider{
+    grid-column:1/-1;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    margin:5px 0;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.3em;
+    color:var(--rose);
+}
+
+.section-divider::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background:rgba(169,88,79,.25);
+}
+
+/*====================
+CARD
+=====================*/
+
+.tile{
+    position:relative;
+    overflow:hidden;
+    border-radius:10px;
+
+    min-height:320px;
+
+    background-size:cover;
+    background-position:center;
+
+    transition:.45s;
+}
+
+.tile.jewel{
+    background-color:var(--maroon);
+}
+
+.tile.resin{
+    background-color:var(--teal-deep);
+}
+
+.tile::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.28);
+    z-index:1;
+}
+
+.tile::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(to top,
+    rgba(0,0,0,.75),
+    rgba(0,0,0,.15),
+    transparent);
+    z-index:2;
+}
+
+/* Hover */
+
+.tile-link:hover .tile{
+    transform:translateY(-8px);
+    box-shadow:0 18px 35px rgba(0,0,0,.18);
+}
+
+/* Texture */
+
+.texture{
+    position:absolute;
+    inset:0;
+    z-index:0;
+}
+
+.tile.jewel .texture{
+    background-image:
+    radial-gradient(rgba(255,255,255,.15) 1px,transparent 1px);
+    background-size:14px 14px;
+    opacity:.25;
+}
+
+.tile.resin .texture{
+    background:
+    repeating-radial-gradient(circle at 70% 60%,
+    rgba(255,255,255,.08) 0px,
+    rgba(255,255,255,.08) 2px,
+    transparent 3px,
+    transparent 24px);
+}
+
+/* Gold Hover */
+
+.pour{
+    position:absolute;
+    inset:0;
+    background:
+    radial-gradient(circle at bottom,
+    var(--gold-light),
+    var(--gold),
+    transparent 70%);
+    transform:translateY(100%) scale(1.4);
+    transition:.7s;
+    z-index:1;
+}
+
+.tile:hover .pour{
+    transform:translateY(0) scale(1.4);
+}
+
+/* Badge */
+
+.badge{
+    position:absolute;
+    top:20px;
+    left:20px;
+
+    width:44px;
+    height:44px;
+
+    border-radius:50%;
+    border:1px solid rgba(231,206,140,.8);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:var(--gold-light);
+
+    font-family:'Cormorant Garamond',serif;
+    font-size:18px;
+
+    z-index:3;
+}
+
+/* Content */
+
+.label{
+    position:absolute;
+    left:24px;
+    right:24px;
+    bottom:24px;
+    z-index:3;
+}
+
+.kicker{
+    display:block;
+    color:var(--gold-light);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.18em;
+    margin-bottom:8px;
+}
+
+.label h3{
+    font-family:'Cormorant Garamond',serif;
+    color:#fff;
+    font-size:30px;
+    font-weight:500;
+}
+
+.arrow{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:12px;
+
+    color:var(--gold-light);
+
+    font-size:11px;
+
+    text-transform:uppercase;
+
+    opacity:0;
+
+    transform:translateY(8px);
+
+    transition:.35s;
+}
+
+.tile:hover .arrow{
+    opacity:1;
+    transform:translateY(0);
+}
+
+.arrow svg{
+    width:16px;
+    height:16px;
+    stroke:currentColor;
+}
+
+/*====================
+TABLET
+=====================*/
+
+@media(max-width:991px){
+
+.grid{
+    grid-template-columns:repeat(2,1fr);
+}
+
+.tile-large,
+.tile-half,
+.tile-full{
+    grid-column:span 2;
+}
+
+.tile{
+    min-height:280px;
+}
+
+h1{
+    font-size:42px;
+}
+
+}
+
+/*====================
+MOBILE
+=====================*/
+
+@media(max-width:767px){
+
+body{
+    padding:40px 16px;
+}
+
+.grid{
+    grid-template-columns: 2 1fr;
+    gap:18px;
+}
+
+.tile-large,
+.tile-half,
+.tile-full{
+    grid-column:span 1;
+}
+
+.tile{
+    min-height:230px;
+}
+
+h1{
+    font-size:32px;
+}
+
+.label{
+    left:18px;
+    right:18px;
+    bottom:18px;
+}
+
+.label h3{
+    font-size:24px;
+}
+
+.badge{
+    width:36px;
+    height:36px;
+    font-size:15px;
+}
+
+.arrow{
+    opacity:1;
+    transform:none;
+}
+
+.section-divider{
+    font-size:10px;
+    letter-spacing:.2em;
+}
+
+}
+  </style>
+ </head>
+ <body>
+  <div class="wrap">
+
+    <!-- Heading -->
+    <div class="eyebrow">The House Collections</div>
+
+    <h1>
+        Made to be <em>worn</em>,<br>
+        poured to be <em>kept</em>.
+    </h1>
+
+    <p class="sub">
+        Five ways into the studio — fine jewellery for the everyday and the ceremonial,
+        and resin pieces cast one at a time.
+    </p>
+
+    <div class="grid">
+
+        <!-- ========================= -->
+        <!-- ROW 1 -->
+        <!-- ========================= -->
+
+        <!-- Modern Jewellery -->
+        <a href="https://attairestreetpvt.com/collections/morden-jwellery"
+           class="tile-link tile-large">
+
+            <div class="tile jewel"
+                 style="background-image:url('https://cdn.shopify.com/s/files/1/0685/7572/3715/files/30179b5bc23cf5546fb11955e4c6a275.jpg?v=1785391134');">
+
+                <div class="texture"></div>
+                <div class="pour"></div>
+
+                <div class="badge">M</div>
+
+                <div class="label">
+
+                    <span class="kicker">
+                        Everyday Fine
+                    </span>
+
+                    <h3>
+                        Modern Jewellery
+                    </h3>
+
+                    <span class="arrow">
+
+                        Explore the Collection
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke-width="1.5">
+
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+
+                        </svg>
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </a>
+
+        <!-- Traditional Jewellery -->
+        <a href="https://attairestreetpvt.com/collections/traditional-jwellery"
+           class="tile-link tile-large">
+
+            <div class="tile jewel"
+                 style="background-image:url('https://cdn.shopify.com/s/files/1/0685/7572/3715/files/34b343412a1c7cc17fba0e2794d0144e.jpg?v=1785391629');">
+
+                <div class="texture"></div>
+                <div class="pour"></div>
+
+                <div class="badge">T</div>
+
+                <div class="label">
+
+                    <span class="kicker">
+                        For Every Celebration
+                    </span>
+
+                    <h3>
+                        Traditional Jewellery
+                    </h3>
+
+                    <span class="arrow">
+
+                        Explore the Collection
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke-width="1.5">
+
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+
+                        </svg>
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </a>
+
+        <!-- ========================= -->
+        <!-- DIVIDER -->
+        <!-- ========================= -->
+
+        <div class="section-divider">
+            Crafted Resin Collection
+        </div>
+
+        <!-- ========================= -->
+        <!-- ROW 2 -->
+        <!-- ========================= -->
+
+        <!-- Resin Jewellery -->
+        <a href="https://attairestreetpvt.com/collections/resin-jwellery"
+           class="tile-link tile-half">
+
+            <div class="tile resin"
+                 style="background-image:url('https://cdn.shopify.com/s/files/1/0685/7572/3715/files/ac9ad2105fecccab9f6a29959a133801.jpg?v=1785391134');">
+
+                <div class="texture"></div>
+                <div class="pour"></div>
+
+                <div class="badge">R</div>
+
+                <div class="label">
+
+                    <span class="kicker">
+                        Handmade Beauty
+                    </span>
+
+                    <h3>
+                        Resin Jewellery
+                    </h3>
+
+                    <span class="arrow">
+
+                        Explore the Collection
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke-width="1.5">
+
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+
+                        </svg>
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </a>
+
+        <!-- Resin Artwork -->
+        <a href="https://attairestreetpvt.com/collections/resin-decorative-artwork"
+           class="tile-link tile-half">
+
+            <div class="tile resin"
+                 style="background-image:url('https://cdn.shopify.com/s/files/1/0685/7572/3715/files/abdf7d1f14ea147eba8f4b25eb9c29e0.jpg?v=1785391134');">
+
+                <div class="texture"></div>
+                <div class="pour"></div>
+
+                <div class="badge">A</div>
+
+                <div class="label">
+
+                    <span class="kicker">
+                        Home Decor
+                    </span>
+
+                    <h3>
+                        Resin Artwork
+                    </h3>
+
+                    <span class="arrow">
+
+                        Explore the Collection
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke-width="1.5">
+
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+
+                        </svg>
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </a>
+
+        <!-- Festival -->
+        <a href="https://attairestreetpvt.com/collections/rakhi"
+           class="tile-link tile-full">
+
+            <div class="tile resin"
+                 style="background-image:url('https://cdn.shopify.com/s/files/1/0685/7572/3715/files/c649b29c5a31765f39f6668382a9ee5a.jpg?v=1785391134');">
+
+                <div class="texture"></div>
+                <div class="pour"></div>
+
+                <div class="badge">F</div>
+
+                <div class="label">
+
+                    <span class="kicker">
+                        Festive Collection
+                    </span>
+
+                    <h3>
+                        Festival
+                    </h3>
+
+                    <span class="arrow">
+
+                        Explore the Collection
+
+                        <svg viewBox="0 0 24 24"
+                             fill="none"
+                             stroke-width="1.5">
+
+                            <path d="M5 12h14M13 6l6 6-6 6"/>
+
+                        </svg>
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </a>
+
+    </div>
+
+</div>
+ </body>
+ </html>

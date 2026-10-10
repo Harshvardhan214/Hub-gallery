@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orbit — your desk companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #eae7df;
+    --bg-2: #dedad0;
+    --ink: #23221f;
+    --ink-soft: #6b6a63;
+    --teal: #12a883;
+    --teal-dark: #0b6b56;
+    --white: #fbfaf7;
+    --line: rgba(35,34,31,0.1);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 24px 40px;
+    position:relative;
+    z-index: 20;
+  }
+  .nav-left, .nav-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .pill{
+    background: var(--white);
+    border-radius: 999px;
+    padding: 12px 22px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    white-space:nowrap;
+  }
+  a.pill{
+    color: var(--ink);
+    text-decoration:none;
+  }
+  .pill.buy{
+    background: var(--teal);
+    color: var(--white);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+    border:none;
+  }
+  .pill.buy:hover{ background: var(--teal-dark); }
+  .logo-mark{
+    width:44px; height:44px;
+    border-radius: 14px;
+    background: var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+  }
+  .logo-mark span{
+    width:8px; height:16px;
+    border-radius:4px;
+    background: var(--teal);
+  }
+  .navdiv{
+    border-bottom: 1px solid var(--line);
+    margin: 0 40px;
+  }
+
+  .hero{
+    position:relative;
+    height: 620px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .bg-word{
+    position:absolute;
+    left:50%;
+    top:58%;
+    transform: translate(-50%,-50%);
+    font-family:'Sora', sans-serif;
+    font-weight:700;
+    font-size: 220px;
+    letter-spacing: -4px;
+    color: var(--ink);
+    opacity: 0.06;
+    white-space: nowrap;
+    user-select:none;
+    pointer-events:none;
+  }
+  .vignette{
+    position:absolute;
+    inset:0;
+    background: radial-gradient(ellipse 700px 420px at 50% 62%, transparent 30%, var(--bg-2) 78%);
+    pointer-events:none;
+  }
+
+  .stage{
+    position:relative;
+    width: 320px;
+    height: 340px;
+    z-index: 5;
+  }
+  .shadow-ellipse{
+    position:absolute;
+    bottom: 8px;
+    left:50%;
+    width: 190px;
+    height: 26px;
+    background: rgba(35,34,31,0.18);
+    border-radius: 50%;
+    filter: blur(6px);
+    transform: translateX(-50%);
+  }
+
+  .bot{
+    position:absolute;
+    left:50%;
+    top: 30px;
+    width: 220px;
+    height: 300px;
+    transform: translateX(-50%);
+    perspective: 600px;
+  }
+  .bot-body{
+    position:absolute;
+    bottom: 20px;
+    left:50%;
+    transform: translateX(-50%);
+    width: 190px;
+    height: 190px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 32% 28%, rgba(255,255,255,0.9), rgba(255,255,255,0) 45%),
+      radial-gradient(circle at 70% 75%, rgba(0,0,0,0.06), rgba(0,0,0,0) 55%),
+      #dcd9d1;
+    box-shadow: inset 0 -14px 26px rgba(0,0,0,0.08), inset 0 10px 18px rgba(255,255,255,0.5);
+    transition: transform 0.15s ease-out;
+  }
+  .bot-body::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background-image: radial-gradient(rgba(35,34,31,0.13) 1px, transparent 1.4px);
+    background-size: 7px 7px;
+    opacity:0.5;
+  }
+
+  .head-pivot{
+    position:absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 2px;
+    transform: translateX(-50%);
+  }
+  .head{
+    position:absolute;
+    top: 0;
+    left: 50%;
+    width: 112px;
+    height: 112px;
+    transform: translateX(-50%);
+    transition: transform 0.12s ease-out;
+    transform-style: preserve-3d;
+  }
+  .helmet{
+    position:absolute;
+    top:0; left:0;
+    width:112px; height:112px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 34% 30%, #4a4a43 0%, #26261f 42%, #131311 78%),
+      linear-gradient(155deg, #34342f 0%, #1c1c19 60%);
+    box-shadow:
+      inset -14px -16px 26px rgba(0,0,0,0.55),
+      inset 10px 12px 18px rgba(255,255,255,0.08),
+      0 14px 22px rgba(0,0,0,0.22);
+  }
+  .visor{
+    position:absolute;
+    top: 40px;
+    left: 12px;
+    width: 88px;
+    height: 32px;
+    border: 1.5px solid var(--teal);
+    border-radius: 50%;
+    opacity:0.9;
+  }
+  .ear{
+    position:absolute;
+    top: 42px;
+    width: 14px;
+    height: 26px;
+    border-radius: 8px;
+    border: 3px solid var(--white);
+    background: transparent;
+  }
+  .ear.left{ left: -14px; }
+  .ear.right{ right: -14px; }
+
+  .eyes{
+    position:absolute;
+    top: 46px;
+    left: 19px;
+    width: 74px;
+    display:flex;
+    justify-content: space-between;
+  }
+  .eye-socket{
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #0d0d0b;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .pupil{
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--teal);
+    transition: transform 0.05s linear;
+  }
+
+  .hero-copy{
+    display:none;
+  }
+
+  footer.tagline{
+    text-align:center;
+    padding: 0 24px 56px;
+    font-family:'Sora', sans-serif;
+  }
+  footer.tagline h1{
+    font-size: 40px;
+    font-weight:600;
+    margin: 0 0 10px;
+    letter-spacing: -0.5px;
+  }
+  footer.tagline p{
+    font-size: 16px;
+    color: var(--ink-soft);
+    margin:0;
+  }
+
+  @media (max-width: 640px){
+    nav{padding: 18px 18px;}
+    .navdiv{margin: 0 18px;}
+    .pill{padding:10px 14px; font-size:13px;}
+    .bg-word{font-size: 110px;}
+    footer.tagline h1{font-size: 28px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a class="pill" href="#">Product</a>
+    <a class="pill" href="#">About</a>
+    <a class="pill" href="#">Specs</a>
+    <a class="pill" href="#">Reviews</a>
+  </div>
+  <div class="logo-mark"><span></span><span></span></div>
+  <div class="nav-right">
+    <a class="pill" href="#">Contact</a>
+    <button class="pill buy">Buy now
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    </button>
+  </div>
+</nav>
+<div class="navdiv"></div>
+
+<section class="hero" id="hero">
+  <div class="bg-word">ORBIT COMPANION</div>
+  <div class="vignette"></div>
+
+  <div class="stage">
+    <div class="shadow-ellipse" id="shadow"></div>
+    <div class="bot" id="bot">
+      <div class="bot-body" id="body"></div>
+      <div class="head" id="head">
+        <div class="helmet"></div>
+        <div class="visor"></div>
+        <div class="ear left"></div>
+        <div class="ear right"></div>
+        <div class="eyes">
+          <div class="eye-socket"><div class="pupil" id="pupilL"></div></div>
+          <div class="eye-socket"><div class="pupil" id="pupilR"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="tagline">
+  <h1>Meet Orbit.</h1>
+  <p>A little robot that always keeps an eye on you.</p>
+</footer>
+
+<script>
+  const hero = document.getElementById('hero');
+  const head = document.getElementById('head');
+  const pupilL = document.getElementById('pupilL');
+  const pupilR = document.getElementById('pupilR');
+
+  let originX = 0;
+  let originY = 210;
+
+  function updateOrigin(){
+    const rect = head.getBoundingClientRect();
+    originX = rect.left + rect.width / 2;
+    originY = rect.top + rect.height / 2;
+  }
+  window.addEventListener('resize', updateOrigin);
+  updateOrigin();
+
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+
+  function handleMove(clientX, clientY){
+    const dx = clientX - originX;
+    const dy = clientY - originY;
+    const dist = Math.min(Math.hypot(dx, dy), 400);
+    const angle = Math.atan2(dy, dx);
+
+    const headRotY = clamp(dx / 9, -32, 32);
+    const headRotX = clamp(-dy / 12, -20, 20);
+    const headTiltZ = clamp(dx / 70, -6, 6);
+    head.style.transform =
+      'translateX(-50%) rotateY(' + headRotY + 'deg) rotateX(' + headRotX + 'deg) rotateZ(' + headTiltZ + 'deg)';
+
+    const pupilRange = 6;
+    const px = Math.cos(angle) * pupilRange * Math.min(dist / 200, 1);
+    const py = Math.sin(angle) * pupilRange * Math.min(dist / 200, 1);
+    pupilL.style.transform = 'translate(' + px + 'px,' + py + 'px)';
+    pupilR.style.transform = 'translate(' + px + 'px,' + py + 'px)';
+  }
+
+  hero.addEventListener('mousemove', (e) => {
+    handleMove(e.clientX, e.clientY);
+  });
+  hero.addEventListener('mouseleave', () => {
+    head.style.transform = 'translateX(-50%)';
+    pupilL.style.transform = 'translate(0,0)';
+    pupilR.style.transform = 'translate(0,0)';
+  });
+</script>
+</body>
+</html>

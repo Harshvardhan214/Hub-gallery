@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Home Edit — Shelf Slider</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,500&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:      #2A2622;
+    --plaster:  #F0EAE0;
+    --cream:    #FBF8F3; 
+    --sage:     #28565A;
+    --clay:     #A8735C;
+    --sand:     #D8CBB4;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--plaster);
+    color:var(--ink);
+    font-family:'Manrope', sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:56px 20px;
+  }
+
+  .page{ width:100%; max-width:1180px; }
+
+  /* ---------- header ---------- */
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--clay);
+    margin:0 0 14px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-style:italic;
+    font-size:clamp(28px, 4.4vw, 46px);
+    line-height:1.08;
+    margin:0 0 12px;
+    max-width:640px;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    font-size:15px;
+    color:#6b6459;
+    max-width:440px;
+    line-height:1.5;
+    margin:0 0 40px;
+  }
+
+  /* ---------- slider shell ---------- */
+  .shelf-wrap{
+    position:relative;
+    overflow:hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+  }
+
+  .track{
+    display:flex;
+    align-items:flex-start;
+    will-change:transform;
+  }
+
+  .card{
+    flex:0 0 auto;
+    width:196px;
+    margin-right:30px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    cursor:default;
+    transform-origin:50% 260px;
+  }
+
+  /* upper zone: object resting on the shelf */
+  .object-zone{
+    height:260px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    width:100%;
+  }
+
+  .plate{
+    width:112px;
+    height:112px;
+    border-radius:50%;
+    background:var(--cream);
+    border:1px solid var(--sand);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transform-origin:50% 100%;
+    box-shadow:0 6px 14px rgba(42,38,34,.06);
+  }
+  .plate img{
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+    display: block;
+  }
+  .plate svg{ width:52px; height:52px; stroke:var(--ink); }
+
+  /* shelf line — one continuous line under the whole track */
+  .shelf-line{
+    position:absolute;
+    left:0; right:0;
+    top:260px;
+    height:3px;
+    background:linear-gradient(to bottom, var(--sand), #c3b399);
+    box-shadow:0 5px 10px -3px rgba(42,38,34,.28);
+    z-index:0;
+  }
+
+  .notch{
+    width:1px;
+    height:14px;
+    background:var(--sand);
+    margin-top:0;
+  }
+  .dot{
+    width:5px; height:5px;
+    border-radius:50%;
+    background:var(--sand);
+    margin-top:-2.5px;
+  }
+
+  /* lower zone: label hanging off the shelf */
+  .label{
+    margin-top:14px;
+    text-align:center;
+    width:100%;
+    transition:opacity .05s linear;
+  }
+  .cat{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--sage);
+    margin:0 0 6px;
+  }
+  .name{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-size:17px;
+    line-height:1.25;
+    margin:0 0 5px;
+  }
+  .material{
+    font-size:11.5px;
+    color:#8a8378;
+    margin:0 0 8px;
+    line-height:1.4;
+  }
+  .price{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    color:var(--clay);
+    margin:0;
+  }
+
+  @media (max-width:640px){
+    .card{ width:150px; margin-right:20px; }
+    .object-zone{ height:210px; }
+    .shelf-line{ top:210px; }
+    .card{ transform-origin:50% 210px; }
+    .plate{ width:88px; height:88px; }
+    .plate svg{ width:42px; height:42px; }
+    .name{ font-size:15px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .track{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="shelf-wrap" id="shelfWrap">
+    <div class="shelf-line"></div>
+    <div class="track" id="track"></div>
+  </div>
+</div>
+
+<script>
+const products = [
+  { cat:"Ceramics",  name:"Hand-thrown Vase",   material:"Stoneware, sand glaze",     price:"$68",
+    imageUrl: "https://placehold.co/100x100/F0EAE0/2A2622?text=Vase" },
+
+  { cat:"Lighting",  name:"Amber Table Lamp",   material:"Blown glass, oak base",     price:"$124",
+    imageUrl: "https://placehold.co/100x100/F0EAE0/2A2622?text=Lamp" },
+
+  { cat:"Mirrors",   name:"Arched Wall Mirror", material:"Brushed brass frame",       price:"$189",
+    imageUrl: "https://placehold.co/100x100/F0EAE0/2A2622?text=Mirror" },
+
+  { cat:"Textiles",  name:"Waffle Linen Cushion", material:"Washed linen, down fill", price:"$42",
+    imageUrl: "https://placehold.co/100x100/F0EAE0/2A2622?text=Cushion" },
+
+  { cat:"Greenery",  name:"Olive Tree Planter", material:"Glazed terracotta pot",     price:"$56",
+    imageUrl: "https://placehold.co/100x100/F0EAE0/2A2622?text=Plant" },
+
+  { cat:"Candles",   name:"Fig & Cedar Candle", material:"Soy wax, cotton wick",      price:"$32",
+    imageUrl: "https://placehold.co/100x100/F0EAE0/2A2622?text=Candle" },
+
+  { cat:"Timepieces", name:"Arc Wall Clock",    material:"Walnut, brass hands",       price:"$78",
+    imageUrl: "https://placehold.co/100x100/F0EAE0/2A2622?text=Clock" },
+
+  { cat:"Textiles",  name:"Bouclé Throw",       material:"Undyed wool bouclé",        price:"$95",
+    imageUrl: "https://placehold.co/100x100/F0EAE0/2A2622?text=Throw" },
+
+  { cat:"Wall Art",  name:"Framed Line Print",  material:"Ash frame, archival paper", price:"$64",
+    imageUrl: "images\download.png" }
+];
+
+const track = document.getElementById('track');
+const wrap  = document.getElementById('shelfWrap');
+
+// duplicate set three times for a seamless infinite loop
+const SETS = 3;
+let cardEls = [];
+for(let s=0; s<SETS; s++){
+  products.forEach(p=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="object-zone">
+        <div class="plate">
+          <img src="${p.imageUrl}" alt="${p.name}">
+        </div>
+      </div>
+      <div class="notch"></div>
+      <div class="dot"></div>
+      <div class="label">
+        <p class="cat">${p.cat}</p>
+        <p class="name">${p.name}</p>
+        <p class="material">${p.material}</p>
+        <p class="price">${p.price}</p>
+      </div>`;
+    track.appendChild(card);
+    cardEls.push(card);
+  });
+}
+
+let setWidth = 0;
+let paused = false;
+let x = 0;
+let lastTime = null;
+const SPEED = 0.045; // px per ms
+
+function measure(){
+  const first = cardEls[0];
+  const style = getComputedStyle(first);
+  const cardFull = first.offsetWidth + parseFloat(style.marginRight);
+  setWidth = cardFull * products.length;
+}
+
+function updateScales(){
+  const wrapRect = wrap.getBoundingClientRect();
+  const centerX = wrapRect.left + wrapRect.width / 2;
+  const maxDist = wrapRect.width / 2.1;
+
+  cardEls.forEach(card=>{
+    const r = card.getBoundingClientRect();
+    const cardCenter = r.left + r.width/2;
+    const dist = Math.abs(cardCenter - centerX);
+    let t = 1 - Math.min(dist / maxDist, 1); // 1 at center, 0 at edge
+    t = Math.pow(t, 1.6); // sharpen the falloff
+
+    const scale   = 0.82 + t * 0.5;      // 0.82 -> 1.32
+    const lift    = t * 14;              // px lifted off shelf
+    const opacity = 0.4 + t * 0.6;       // 0.4 -> 1
+
+    const plate = card.querySelector('.plate');
+    const label = card.querySelector('.label');
+    plate.style.transform = `translateY(${-lift}px) scale(${scale})`;
+    plate.style.boxShadow = `0 ${10 + t*14}px ${18 + t*18}px -6px rgba(42,38,34,${0.10 + t*0.16})`;
+    label.style.opacity = opacity;
+  });
+}
+
+function animate(ts){
+  if(lastTime === null) lastTime = ts;
+  const dt = ts - lastTime;
+  lastTime = ts;
+
+  if(!paused){
+    x -= SPEED * dt;
+    if (Math.abs(x) >= setWidth) x += setWidth;
+    track.style.transform = `translateX(${x}px)`;
+  }
+  updateScales();
+  requestAnimationFrame(animate);
+}
+
+wrap.addEventListener('mouseenter', ()=> paused = true);
+wrap.addEventListener('mouseleave', ()=> paused = false);
+
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(reduceMotion) paused = true;
+
+window.addEventListener('resize', measure);
+window.addEventListener('load', ()=>{
+  measure();
+  // start roughly one set in, so the loop feels centered from the start
+  x = -setWidth;
+  track.style.transform = `translateX(${x}px)`;
+  requestAnimationFrame(animate);
+});
+</script>
+
+</body>
+</html>

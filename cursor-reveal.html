@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nocturne Expeditions — The desert after dark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,340;0,9..144,560;1,9..144,480&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  @property --mx {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 50%;
+  }
+  @property --my {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 50%;
+  }
+  @property --r {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 220px;
+  }
+
+  :root{
+    --night-top:#050714;
+    --night-bottom:#131a3a;
+    --sand:#e8c9a0;
+    --clay:#c97b63;
+    --dusk:#e8875b;
+    --cream:#f5efe3;
+    --gold:#d4a857;
+    --ring:rgba(245,239,227,0.55);
+    --font-display:'Fraunces', serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'Space Mono', monospace;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--night-top); }
+
+  .hero{
+    position:relative;
+    width:100%;
+    min-height:100vh;
+    min-height:100dvh;
+    overflow:hidden;
+    font-family:var(--font-body);
+    cursor:none;
+    isolation:isolate;
+  }
+
+  /* ---------- visual stage ---------- */
+  .hero-visual{
+    position:absolute;
+    inset:0;
+    --mx:50%;
+    --my:38%;
+    --r:220px;
+    transition:--r 700ms cubic-bezier(.16,1,.3,1);
+  }
+  @media (max-width:640px){
+    .hero-visual{ --r:150px; }
+  }
+  .hero-visual.is-revealed{ --r:150vmax; }
+
+  .sky{ position:absolute; inset:0; }
+
+  /* ---- Back layer (bottom image) ---- */
+  .sky--back{
+    z-index:1;
+  }
+  .sky--back img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  /* ---- Front layer (top image, gets masked away where cursor is) ---- */
+  .sky--front{
+    z-index:2;
+    -webkit-mask-image:radial-gradient(circle at var(--mx) var(--my), transparent 0, transparent var(--r), white calc(var(--r) + 90px), white 100%);
+    mask-image:radial-gradient(circle at var(--mx) var(--my), transparent 0, transparent var(--r), white calc(var(--r) + 90px), white 100%);
+  }
+  .sky--front img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  /* ---- lens ring that follows the cursor ---- */
+  .lens-ring{
+    position:absolute;
+    top:0; left:0;
+    width:0; height:0;
+    z-index:5;
+    pointer-events:none;
+    transform:translate(calc(var(--mx, 50%) - 0px), calc(var(--my, 50%) - 0px));
+    opacity:0;
+    transition:opacity 300ms ease;
+  }
+  .hero-visual:hover .lens-ring{ opacity:1; }
+  .lens-ring::before{
+    content:'';
+    position:absolute;
+    top:0; left:0;
+    width:var(--r, 220px);
+    height:var(--r, 220px);
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,0.6);
+    box-shadow:0 0 20px rgba(0,0,0,0.3), 0 0 0 2px rgba(255,255,255,0.15) inset;
+    transition:width 700ms cubic-bezier(.16,1,.3,1), height 700ms cubic-bezier(.16,1,.3,1);
+  }
+  .lens-ring::after{
+    content:'';
+    position:absolute;
+    top:-9999px; left:-9999px; right:-9999px; bottom:-9999px;
+  }
+
+  /* ---------- content ---------- */
+  .hero-content{
+    position:relative;
+    z-index:6;
+    max-width:760px;
+    padding:14vh 6vw 0;
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--cream);
+    opacity:0.75;
+    margin:0 0 20px;
+  }
+  .headline{
+    font-family:var(--font-display);
+    font-weight:340;
+    font-size:clamp(34px, 6vw, 68px);
+    line-height:1.06;
+    color:var(--cream);
+    margin:0 0 22px;
+    letter-spacing:-0.01em;
+  }
+  .headline em{
+    font-style:italic;
+    font-weight:480;
+    color:var(--gold);
+  }
+  .subline{
+    font-size:16px;
+    line-height:1.55;
+    color:var(--cream);
+    opacity:0.8;
+    max-width:440px;
+    margin:0 0 36px;
+  }
+  .hero-actions{
+    display:flex;
+    align-items:center;
+    gap:22px;
+    flex-wrap:wrap;
+    pointer-events:auto;
+  }
+  .btn-reveal{
+    font-family:var(--font-mono);
+    font-size:13px;
+    letter-spacing:0.04em;
+    color:var(--night-top);
+    background:var(--cream);
+    border:none;
+    border-radius:999px;
+    padding:13px 22px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+    transition:transform 200ms ease, background 200ms ease;
+  }
+  .btn-reveal:hover{ background:var(--gold); }
+  .btn-reveal:active{ transform:scale(0.97); }
+  .btn-reveal:focus-visible{ outline:2px solid var(--gold); outline-offset:3px; }
+  .btn-reveal__icon{ font-size:14px; }
+
+  .btn-cta{
+    font-family:var(--font-body);
+    font-weight:500;
+    font-size:15px;
+    color:var(--cream);
+    text-decoration:none;
+    border-bottom:1px solid rgba(245,239,227,0.4);
+    padding-bottom:2px;
+    transition:border-color 200ms ease, opacity 200ms ease;
+  }
+  .btn-cta:hover{ border-color:var(--cream); }
+  .btn-cta:focus-visible{ outline:2px solid var(--gold); outline-offset:4px; }
+
+  /* ---------- readout + hint ---------- */
+  .hero-readout{
+    position:absolute;
+    left:6vw; bottom:36px;
+    z-index:6;
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--cream);
+    opacity:0;
+    transition:opacity 400ms ease;
+    pointer-events:none;
+  }
+  .hero-readout.is-visible{ opacity:0.65; }
+  .readout__label{
+    text-transform:uppercase;
+    letter-spacing:0.12em;
+    opacity:0.6;
+    margin-right:10px;
+  }
+
+  .hero-hint{
+    position:absolute;
+    right:6vw; bottom:36px;
+    z-index:6;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--cream);
+    opacity:0.55;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    transition:opacity 500ms ease;
+    pointer-events:none;
+  }
+  .hero-hint::before{
+    content:'';
+    width:6px; height:6px;
+    border-radius:50%;
+    background:var(--gold);
+    box-shadow:0 0 0 4px rgba(212,168,87,0.18);
+  }
+  .hero-hint.is-hidden{ opacity:0; }
+
+  @media (max-width:640px){
+    .hero-content{ padding-top:12vh; }
+    .hero-readout, .hero-hint{ display:none; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero-visual{ transition:none; }
+    .lens-ring::before{ transition:none; }
+    .btn-reveal, .btn-cta, .hero-hint{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero" id="hero">
+  <div class="hero-visual" id="heroVisual">
+    <div class="sky sky--back">
+      <img src="images/f91798171ed59fe8e642fb621889eda4.jpg" alt="Back image" id="imgBack">
+    </div>
+
+    <div class="sky sky--front">
+      <img src="images/download.png" alt="Front image" id="imgFront">
+    </div>
+
+    <div class="lens-ring" id="lensRing" aria-hidden="true"></div>
+  </div>
+
+  <div class="hero-content">
+    <p class="eyebrow">Cursor Reveal Gallery</p>
+    <h1 class="headline">Move your cursor to<br><em>reveal</em> what's beneath.</h1>
+    <p class="subline">Hover over the image to peek through — or click the button to swap the front and back images.</p>
+    <div class="hero-actions">
+      <button class="btn-reveal" id="revealToggle" aria-pressed="false">
+        <span class="btn-reveal__icon">↔</span> Swap Images
+      </button>
+      <a href="components-hub.html" class="btn-cta">Back to Components Hub →</a>
+    </div>
+  </div>
+
+  <div class="hero-readout" id="readout">
+    <span class="readout__label">Tracking</span><span id="readoutValue">X: 50% · Y: 50%</span>
+  </div>
+
+  <div class="hero-hint" id="hint">Move to reveal</div>
+</section>
+
+<script>
+(function(){
+  var hero = document.getElementById('hero');
+  var visual = document.getElementById('heroVisual');
+  var lensRing = document.getElementById('lensRing');
+  var readout = document.getElementById('readout');
+  var readoutValue = document.getElementById('readoutValue');
+  var hint = document.getElementById('hint');
+  var revealToggle = document.getElementById('revealToggle');
+
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hasFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  var rect = { w: window.innerWidth, h: window.innerHeight };
+  function updateRect(){
+    var r = visual.getBoundingClientRect();
+    rect = { left:r.left, top:r.top, w:r.width, h:r.height };
+  }
+  updateRect();
+
+  var target = { x: rect.w * 0.5, y: rect.h * 0.38 };
+  var current = { x: target.x, y: target.y };
+  var hintHidden = false;
+
+  function setPosition(px, py){
+    visual.style.setProperty('--mx', px + 'px');
+    visual.style.setProperty('--my', py + 'px');
+  }
+  setPosition(current.x, current.y);
+
+  function updateReadout(nx, ny){
+    // purely decorative "instrument" readout, not real astronomical math
+    var ra = (nx * 24).toFixed(1);
+    var dec = ((ny - 0.5) * -140).toFixed(1);
+    var raH = Math.floor(ra);
+    var raM = Math.round((ra - raH) * 60);
+    var decSign = dec >= 0 ? '+' : '−';
+    readoutValue.textContent = 'RA ' + String(raH).padStart(2,'0') + 'ʰ' + String(Math.abs(raM)).padStart(2,'0') + 'ᵐ · DEC ' + decSign + Math.abs(Math.round(dec)) + '°';
+  }
+
+  function onMove(clientX, clientY){
+    updateRect();
+    target.x = clientX - rect.left;
+    target.y = clientY - rect.top;
+    updateReadout(target.x / rect.w, target.y / rect.h);
+    if(!readout.classList.contains('is-visible')) readout.classList.add('is-visible');
+    if(!hintHidden){
+      hintHidden = true;
+      hint.classList.add('is-hidden');
+    }
+  }
+
+  hero.addEventListener('mousemove', function(e){ onMove(e.clientX, e.clientY); });
+  hero.addEventListener('touchmove', function(e){
+    if(e.touches && e.touches[0]) onMove(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive:true });
+  hero.addEventListener('touchstart', function(e){
+    if(e.touches && e.touches[0]) onMove(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive:true });
+
+  function loop(){
+    var ease = reducedMotion ? 1 : 0.12;
+    current.x += (target.x - current.x) * ease;
+    current.y += (target.y - current.y) * ease;
+    setPosition(current.x, current.y);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  // ambient auto-pan for touch/coarse-pointer devices so the effect is visible without dragging
+  if(!hasFinePointer && !reducedMotion){
+    var t0 = performance.now();
+    var autoActive = true;
+    hero.addEventListener('touchstart', function(){ autoActive = false; }, { passive:true });
+    (function autoPan(now){
+      if(autoActive){
+        var t = (now - t0) / 4200;
+        updateRect();
+        target.x = rect.w * (0.5 + 0.28 * Math.sin(t));
+        target.y = rect.h * (0.4 + 0.14 * Math.cos(t * 0.8));
+      }
+      requestAnimationFrame(autoPan);
+    })(performance.now());
+  }
+
+  // Button: toggles between full reveal and swapping front/back images
+  var revealed = false;
+  var revealBtn = document.getElementById('revealToggle');
+  revealBtn.addEventListener('click', function(){
+    if (revealed) {
+      // Currently revealed — swap the images
+      var frontImg = document.getElementById('imgFront');
+      var backImg = document.getElementById('imgBack');
+      var tempSrc = frontImg.src;
+      frontImg.src = backImg.src;
+      backImg.src = tempSrc;
+      // Close reveal and reset button
+      revealed = false;
+      visual.classList.remove('is-revealed');
+      revealBtn.setAttribute('aria-pressed', 'false');
+      revealBtn.innerHTML = '<span class="btn-reveal__icon">↔</span> Swap Images';
+    } else {
+      // Reveal all (expand the aperture fully)
+      revealed = true;
+      visual.classList.add('is-revealed');
+      revealBtn.setAttribute('aria-pressed', 'true');
+      revealBtn.innerHTML = '<span class="btn-reveal__icon">✕</span> Close &amp; Swap';
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

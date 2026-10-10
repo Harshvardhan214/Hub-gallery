@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Choose Vevly</title>
+<style>
+  :root{
+    --navy-950: #0c1830;
+    --navy-900: #16264a;
+    --navy-800: #1f3563;
+    --ice-100: #eef3fb;
+    --ice-200: #dce7f7;
+    --sky-400: #7fa8e0;
+    --sky-500: #4d79b8;
+    --paper: #fbfcfe;
+    --ink-600: #4a5670;
+    --ink-800: #22293b;
+    --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap');
+
+  *{ box-sizing: border-box; }
+
+  .vevly-section{
+    background:
+      radial-gradient(60% 50% at 18% 20%, rgba(127,168,224,0.10), transparent 60%),
+      radial-gradient(50% 45% at 85% 80%, rgba(127,168,224,0.08), transparent 60%),
+      var(--paper);
+    font-family: var(--font-body);
+    color: var(--ink-800);
+    padding: 88px 24px 96px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .vevly-inner{
+    max-width: 1180px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .vevly-heading{
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(30px, 4.2vw, 46px);
+    letter-spacing: 0.2px;
+    color: var(--navy-950);
+    margin: 0 0 6px;
+  }
+  .vevly-heading em{
+    font-style: italic;
+    font-weight: 500;
+    color: var(--sky-500);
+    position: relative;
+  }
+  .vevly-heading em::after{
+    content:"";
+    position:absolute;
+    left: 2%; right: 2%; bottom: -4px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--sky-400) 20%, var(--sky-400) 80%, transparent);
+    border-radius: 2px;
+  }
+
+  .vevly-sub{
+    text-align:center;
+    max-width: 460px;
+    margin: 0 auto 56px;
+    color: var(--ink-600);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ---------- stage layout ---------- */
+  .vevly-stage{
+    display: grid;
+    grid-template-columns: 1fr minmax(260px, 380px) 1fr;
+    align-items: center;
+    gap: 8px;
+    min-height: 540px;
+    position: relative;
+  }
+
+  .vevly-col{
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+  }
+  .vevly-col.right{ align-items: flex-start; }
+  .vevly-col.left{ align-items: flex-end; text-align: right; }
+
+  .vevly-feature{
+    max-width: 280px;
+    display: flex;
+    gap: 16px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: featureIn 700ms ease forwards;
+  }
+  .vevly-col.left .vevly-feature{ flex-direction: row-reverse; }
+
+  @keyframes featureIn{
+    to{ opacity: 1; transform: translateY(0); }
+  }
+
+  .vevly-icon{
+    flex: none;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--sky-400), var(--sky-500));
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 16px -6px rgba(77,121,184,0.55);
+  }
+  .vevly-icon svg{ width: 24px; height: 24px; stroke: #fff; fill: none; stroke-width: 1.7; }
+
+  .vevly-feature h3{
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 19px;
+    margin: 2px 0 5px;
+    color: var(--navy-900);
+  }
+  .vevly-feature p{
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink-600);
+  }
+
+  /* ---------- center product ---------- */
+  .vevly-center{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  .vevly-blob{
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 30%, var(--ice-100), var(--ice-200) 70%);
+    box-shadow: inset 0 0 40px rgba(127,168,224,0.15);
+  }
+  .vevly-sparkle{
+    position: absolute;
+    color: var(--sky-400);
+    opacity: 0.8;
+  }
+  .vevly-sparkle svg{ width: 30px; height: 30px; }
+  .sp1{ top: 4%; right: 4%; }
+  .sp2{ bottom: 8%; left: 0%; width: 18px; }
+
+  .vevly-imgwrap{
+    position: relative;
+    width: 290px;
+    height: 470px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .vevly-imgwrap img{
+    position: absolute;
+    max-width: 100%;
+    max-height: 470px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 30px 26px rgba(14,25,50,0.22));
+    opacity: 0;
+    transform: scale(0.92) translateY(14px);
+    transition: opacity 700ms ease, transform 700ms cubic-bezier(.22,.9,.32,1);
+    pointer-events: none;
+  }
+  .vevly-imgwrap img.active{
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+
+  .vevly-arrow{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    box-shadow: 0 8px 20px -6px rgba(14,25,50,0.25), 0 0 0 1px rgba(127,168,224,0.25) inset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+    transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease;
+  }
+  .vevly-arrow svg{
+    width: 18px; height: 18px;
+    stroke: var(--navy-900);
+    fill: none;
+    stroke-width: 2;
+  }
+  .vevly-arrow:hover{
+    background: var(--sky-500);
+    transform: translateY(-50%) scale(1.08);
+    box-shadow: 0 10px 22px -6px rgba(77,121,184,0.5);
+  }
+  .vevly-arrow:hover svg{ stroke: #fff; }
+  .vevly-arrow.prev{ left: -6px; }
+  .vevly-arrow.next{ right: -6px; }
+
+  .vevly-dots{
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 9px;
+  }
+  .vevly-dots button{
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    background: var(--ice-200);
+    cursor: pointer;
+    transition: background 300ms ease, width 300ms ease;
+  }
+  .vevly-dots button.active{
+    background: var(--sky-500);
+    width: 22px;
+    border-radius: 4px;
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 880px){
+    .vevly-stage{
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    .vevly-center{ order: -1; min-height: 420px; }
+    .vevly-arrow{ width: 40px; height: 40px; }
+    .vevly-arrow.prev{ left: 2px; }
+    .vevly-arrow.next{ right: 2px; }
+    .vevly-col.left, .vevly-col.right{
+      align-items: center;
+      text-align: center;
+    }
+    .vevly-col{
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 28px 20px;
+    }
+    .vevly-col.left .vevly-feature, .vevly-feature{
+      flex-direction: column;
+      align-items: center;
+      max-width: 160px;
+    }
+    .vevly-feature p{ text-align: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .vevly-imgwrap img{ transition: opacity 400ms ease; }
+    .vevly-feature{ animation: none; opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<section class="vevly-section">
+  <div class="vevly-inner">
+    <h2 class="vevly-heading">Why Choose <em>Vevly</em>?</h2>
+    <p class="vevly-sub">Five formulas, one standard: every Vevly wash is built to clean, protect and strengthen — without weighing you down.</p>
+
+    <div class="vevly-stage">
+
+      <div class="vevly-col left" id="vevly-col-left"></div>
+
+      <div class="vevly-center">
+        <div class="vevly-blob"></div>
+        <span class="vevly-sparkle sp1">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c1 5.5 2.5 7 8 8-5.5 1-7 2.5-8 8-1-5.5-2.5-7-8-8 5.5-1 7-2.5 8-8z"/></svg>
+        </span>
+        <span class="vevly-sparkle sp2">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c1 5.5 2.5 7 8 8-5.5 1-7 2.5-8 8-1-5.5-2.5-7-8-8 5.5-1 7-2.5 8-8z"/></svg>
+        </span>
+        <div class="vevly-imgwrap" id="vevly-imgwrap"></div>
+
+        <button class="vevly-arrow prev" id="vevly-prev" aria-label="Previous product">
+          <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button class="vevly-arrow next" id="vevly-next" aria-label="Next product">
+          <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        <div class="vevly-dots" id="vevly-dots"></div>
+      </div>
+
+      <div class="vevly-col right" id="vevly-col-right"></div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+
+  // ---- ICONS (inline, reused across features) ----
+  const icons = {
+    drop: '<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/>',
+    leaf: '<path d="M20 4C10 4 4 10 4 20c10 0 16-6 16-16z"/><path d="M8 20c4-4 8-8 12-12"/>',
+    shield: '<path d="M12 3l7 3v6c0 5-3.2 8.4-7 9-3.8-.6-7-4-7-9V6l7-3z"/>',
+    wind: '<path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 16h14a3 3 0 1 1-3 3"/>',
+    spark: '<path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M5 19l4-4M15 9l4-4"/>'
+  };
+  function iconSvg(name){
+    return '<svg viewBox="0 0 24 24">' + icons[name] + '</svg>';
+  }
+
+  // ---- SLIDE DATA: each slide = 1 product image + 4 surrounding features ----
+  const slides = [
+    {
+      src: "http://vevlyproducts.com/wp-content/uploads/2026/09/Copilot_20260909_102134.png",
+      left: [
+        { icon:'drop',  title:'Deep Cleanse',    text:'Purifies scalp and hair, lifting away excess oil and buildup.' },
+        { icon:'shield',title:'Strengthening',   text:'Fortifies every strand at the root to reduce breakage.' }
+      ],
+      right: [
+        { icon:'leaf',  title:'Natural Extracts',text:'Enriched with botanicals that nourish and protect daily.' },
+        { icon:'wind',  title:'Refreshing Scent',text:'A long-lasting, masculine fragrance for all-day confidence.' }
+      ]
+    },
+    {
+      src: "http://vevlyproducts.com/wp-content/uploads/2026/09/Copilot_20260909_101505.png",
+      left: [
+        { icon:'shield',title:'Anti-Hairfall',   text:'Reduces breakage from the first wash, strand by strand.' },
+        { icon:'drop',  title:'Root Care',       text:'Targets the scalp to keep follicles active and healthy.' }
+      ],
+      right: [
+        { icon:'leaf',  title:'Herbal Complex',  text:'A blend of botanical actives known to support thicker hair.' },
+        { icon:'spark', title:'Visible Results', text:'Noticeably fuller, denser-feeling hair within weeks.' }
+      ]
+    },
+    {
+      src: "http://vevlyproducts.com/wp-content/uploads/2026/09/Copilot_20260909_101344.png",
+      left: [
+        { icon:'wind',  title:'Instant Volume',  text:'Lifts hair from the root for a fuller, airier finish.' },
+        { icon:'drop',  title:'Lightweight Formula', text:'Cleans thoroughly without leaving any heavy residue.' }
+      ],
+      right: [
+        { icon:'spark', title:'Body & Bounce',   text:'Adds texture and movement that lasts through the day.' },
+        { icon:'shield',title:'No Flat Hair',    text:'Keeps strands standing tall, even in humidity.' }
+      ]
+    },
+    {
+      src: "http://vevlyproducts.com/wp-content/uploads/2026/09/Copilot_20260909_101242.png",
+      left: [
+        { icon:'drop',  title:'Charcoal Detox',  text:'Draws out pollutants and impurities from the scalp.' },
+        { icon:'shield',title:'Oil Control',     text:'Balances scalp oil for a fresher feel, longer.' }
+      ],
+      right: [
+        { icon:'leaf',  title:'Mineral Rich',    text:'Activated minerals purify without stripping hair.' },
+        { icon:'wind',  title:'Clean Finish',    text:'Rinses fully clear, never chalky or dull.' }
+      ]
+    },
+    {
+      src: "http://vevlyproducts.com/wp-content/uploads/2026/09/Copilot_20260909_101153.png",
+      left: [
+        { icon:'drop',  title:'Ultra Moisture',  text:'Replenishes hydration lost from daily washing and heat.' },
+        { icon:'leaf',  title:'Smooth Texture',  text:'Softens strands for an easier, tangle-free comb-through.' }
+      ],
+      right: [
+        { icon:'spark', title:'Lasting Shine',   text:'Seals the hair surface for a healthy, glossy look.' },
+        { icon:'shield',title:'Frizz Defense',   text:'Locks moisture in to keep frizz out, all day.' }
+      ]
+    }
+  ];
+
+  const imgwrap   = document.getElementById('vevly-imgwrap');
+  const colLeft   = document.getElementById('vevly-col-left');
+  const colRight  = document.getElementById('vevly-col-right');
+  const dotsWrap  = document.getElementById('vevly-dots');
+
+  // build image elements
+  slides.forEach((s, i) => {
+    const img = document.createElement('img');
+    img.src = s.src;
+    img.alt = 'Vevly product ' + (i+1);
+    if (i === 0) img.classList.add('active');
+    imgwrap.appendChild(img);
+  });
+  const imgEls = imgwrap.querySelectorAll('img');
+
+  // build dots
+  slides.forEach((s, i) => {
+    const b = document.createElement('button');
+    if (i === 0) b.classList.add('active');
+    b.setAttribute('aria-label', 'Show product ' + (i+1));
+    b.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(b);
+  });
+  const dotEls = dotsWrap.querySelectorAll('button');
+
+  function featureHTML(f){
+    return '<div class="vevly-feature">' +
+             '<div class="vevly-icon">' + iconSvg(f.icon) + '</div>' +
+             '<div><h3>' + f.title + '</h3><p>' + f.text + '</p></div>' +
+           '</div>';
+  }
+
+  function renderText(i){
+    const s = slides[i];
+    colLeft.innerHTML  = s.left.map(featureHTML).join('');
+    colRight.innerHTML = s.right.map(featureHTML).join('');
+    // stagger the feature entrance animation
+    [...colLeft.children, ...colRight.children].forEach((el, idx) => {
+      el.style.animationDelay = (idx * 90) + 'ms';
+    });
+  }
+
+  let current = 0;
+  let timer = null;
+  const INTERVAL = 4000;
+
+  function goTo(i){
+    if (i === current) return;
+    imgEls[current].classList.remove('active');
+    dotEls[current].classList.remove('active');
+    current = i;
+    imgEls[current].classList.add('active');
+    dotEls[current].classList.add('active');
+    renderText(current);
+    restart();
+  }
+
+  function next(){
+    goTo((current + 1) % slides.length);
+  }
+  function prev(){
+    goTo((current - 1 + slides.length) % slides.length);
+  }
+
+  function restart(){
+    if (timer) clearInterval(timer);
+    timer = setInterval(next, INTERVAL);
+  }
+
+  renderText(0);
+  restart();
+
+  // arrow controls
+  document.getElementById('vevly-next').addEventListener('click', () => { next(); restart(); });
+  document.getElementById('vevly-prev').addEventListener('click', () => { prev(); restart(); });
+
+  // pause on hover for readability
+  const section = document.querySelector('.vevly-section');
+  section.addEventListener('mouseenter', () => { if (timer) clearInterval(timer); });
+  section.addEventListener('mouseleave', restart);
+
+})();
+</script>
+
+</body>
+</html>

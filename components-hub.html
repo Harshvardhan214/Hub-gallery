@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbit Components Hub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-page: #121417;
+            --bg-card: #1a1c21;
+            --border-color: #232529;
+            --text-primary: #f0f2f5;
+            --text-secondary: #9ba3b0;
+            --text-muted: #6b7280;
+            --accent: #3399ff;
+            --accent-glow: rgba(51, 153, 255, 0.25);
+            --sidebar-bg: #1a1c21;
+            --hover-bg: #232529;
+            --transition-speed: 0.3s;
+            --card-radius: 1rem;
+        }
+
+        /* :root {
+            --bg-page: #0f1117;
+            --bg-card: #1a1d27;
+            --bg-card-hover: #232738;
+            --text-primary: #f1f3f5;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --accent-2: #06b6d4;
+            --border-color: #2a2e3a;
+            --sidebar-bg: #1a1d27;
+            --hover-bg: #232738;
+            --transition-speed: 0.3s;
+            --card-radius: 1rem; 
+        } */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            transition: background-color var(--transition-speed), color var(--transition-speed);
+            min-height: 100vh;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        a, button, .icon-btn, .btn-primary, .btn-secondary, .component-card, .tab-btn, .menu-link {
+            cursor: none;
+        }
+
+        /* --- Custom Cursor --- */
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+            transition: width 0.15s, height 0.15s, background 0.2s;
+            box-shadow: 0 0 20px var(--accent-glow), 0 0 60px rgba(99, 102, 241, 0.15);
+        }
+
+        .cursor-ring {
+            position: fixed;
+            width: 36px;
+            height: 36px;
+            border: 1.5px solid rgba(99, 102, 241, 0.4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99998;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, border-color 0.3s, background 0.3s;
+            backdrop-filter: blur(2px);
+            background: rgba(99, 102, 241, 0.04);
+        }
+
+        .cursor-dot.hover {
+            width: 14px;
+            height: 14px;
+            background: #818cf8;
+        }
+
+        .cursor-ring.hover {
+            width: 56px;
+            height: 56px;
+            border-color: rgba(129, 140, 248, 0.6);
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        /* --- Grid Background --- */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.4;
+        }
+
+        .grid-bg svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- Animated Gradient Orbs --- */
+        .orb-bg {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.25;
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 600px;
+            background: var(--accent);
+            top: -200px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 500px;
+            background: var(--accent-2);
+            bottom: -150px;
+            left: -100px;
+            animation-delay: -7s;
+        }
+
+        .orb-3 {
+            width: 300px;
+            height: 400px;
+            background: #8b5cf6;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -14s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-30px, 40px) scale(0.9); }
+        }
+
+        /* --- Header --- */
+        header {
+            position: relative;
+            z-index: 20;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            background: rgba(15, 17, 23, 0.6);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .icon-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: transform 0.2s, background-color 0.2s, border-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.1);
+            background-color: var(--hover-bg);
+            border-color: var(--accent);
+        }
+
+        .icon-btn:active {
+            transform: scale(0.95);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            display: none; /* Hiding the 'O' icon for a cleaner look */
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            font-family: 'Sora', sans-serif;
+            /* background: linear-gradient(135deg, var(--text-primary), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text; */
+        }
+
+        /* --- Sidebar --- */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 30;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 320px;
+            background-color: var(--sidebar-bg);
+            z-index: 40;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+
+        nav.active {
+            transform: translateX(0);
+        }
+
+        .nav-header {
+            margin-top: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .nav-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .nav-header p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .accent-bar {
+            height: 4px;
+            width: 0;
+            background: var(--accent);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            transition: width 0.6s 0.3s ease-out;
+        }
+
+        nav.active .accent-bar {
+            width: 80px;
+        }
+
+        .menu-list {
+            list-style: none;
+        }
+
+        .menu-item {
+            margin-bottom: 0.75rem;
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: opacity 0.4s, transform 0.4s;
+        }
+
+        nav.active .menu-item {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            padding: 0.85rem 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+            gap: 1rem;
+        }
+
+        .menu-link:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .menu-link.active {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .menu-link .icon-wrapper {
+            background: var(--hover-bg);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            transition: all 0.3s;
+            width: 36px;
+            height: 36px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-link:hover .icon-wrapper {
+            background: var(--accent);
+            color: white;
+            transform: scale(1.15) rotate(8deg);
+        }
+
+        .close-nav {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: var(--hover-bg);
+            border-radius: 50%;
+            padding: 0.5rem;
+            border: none;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-nav:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        .drag-hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            right: 2rem;
+            padding: 1rem;
+            background: var(--hover-bg);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            position: relative;
+            z-index: 5;
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 1.5rem 4rem;
+        }
+
+        .hero-badge {
+            display: none; /* Hiding for a cleaner hero */
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 100px;
+            font-size: 0.875rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .hero h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: clamp(2.8rem, 7vw, 4.2rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease-out 0.15s both;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.125rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            max-width: 36rem;
+            margin: 0 auto 2.5rem;
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease-out 0.45s both;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat .number {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .hero-stat .label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Section Title --- */
+        .section-divider {
+            position: relative;
+            z-index: 5;
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 0 1.5rem 2rem;
+        }
+
+        .section-divider .line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+        }
+
+        .section-title {
+            position: relative;
+            z-index: 5;
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 3rem;
+        }
+
+        .section-title h2 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-title p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 32rem;
+        }
+
+        .section-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 100px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        /* --- Component Cards Grid --- */
+        .cards-grid {
+            position: relative;
+            z-index: 5;
+            max-width: 80rem;
+            margin: 0 auto;
+            padding: 0 1.5rem 4rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .component-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--card-radius);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .component-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+            z-index: 2;
+        }
+
+        .component-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .component-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(99, 102, 241, 0.05);
+            background: var(--bg-card-hover);
+        }
+
+        /* --- Card Preview (Live iframe) --- */
+        .card-preview {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background: #0a0c12;
+            border-bottom: 1px solid var(--border-color);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .card-preview iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            pointer-events: none;
+            transform-origin: 0 0;
+        }
+
+        .card-preview .preview-label {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            padding: 3px 10px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: rgba(255,255,255,0.6);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .card-preview .preview-fallback {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* --- Card Body --- */
+        .card-body {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .card-icon { /* Removed for a cleaner card design */
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+            display: none;
+        }
+
+        .card-icon.purple {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent);
+        }
+
+        .card-icon.cyan {
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-2);
+        }
+
+        .card-icon.green {
+            background: rgba(34, 197, 94, 0.15);
+            color: #22c55e;
+        }
+
+        .card-icon.orange {
+            background: rgba(249, 115, 22, 0.15);
+            color: #f97316;
+        }
+
+        .card-icon.pink {
+            background: rgba(236, 72, 153, 0.15);
+            color: #ec4899;
+        }
+
+        .card-title {
+            flex: 1;
+        }
+
+        .card-title h3 {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+            line-height: 1.3;
+        }
+
+        .card-title .category-tag {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .card-body .desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+            flex: 1;
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            padding: 0.2rem 0.65rem;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(99, 102, 241, 0.15);
+        }
+
+        .tag.cyan {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-2);
+            border-color: rgba(6, 182, 212, 0.15);
+        }
+
+        .tag.green {
+            background: rgba(34, 197, 94, 0.1);
+            color: #22c55e;
+            border-color: rgba(34, 197, 94, 0.15);
+        }
+
+        .tag.orange {
+            background: rgba(249, 115, 22, 0.1);
+            color: #f97316;
+            border-color: rgba(249, 115, 22, 0.15);
+        }
+
+        .tag.pink {
+            background: rgba(236, 72, 153, 0.1);
+            color: #ec4899;
+            border-color: rgba(236, 72, 153, 0.15);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--accent);
+            background: linear-gradient(135deg, var(--accent), #818cf8);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        /* --- Footer --- */
+        .hub-footer {
+            position: relative;
+            z-index: 5;
+            border-top: 1px solid var(--border-color);
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            background: rgba(15, 17, 23, 0.8);
+            backdrop-filter: blur(12px);
+        }
+
+        .hub-footer p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .hub-footer .links {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .hub-footer .links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .hub-footer .links a:hover {
+            color: var(--accent);
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            .hero {
+                min-height: 60vh;
+                padding: 6rem 1rem 3rem;
+            }
+
+            .hero-stats {
+                gap: 1.5rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                padding: 0 1rem 3rem;
+                gap: 1rem;
+            }
+
+            .section-title {
+                padding: 1.5rem 1rem 2rem;
+            }
+
+            nav {
+                width: 280px;
+            }
+
+            .card-preview {
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor Elements -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
+
+    <!-- Background Layers -->
+    <div class="orb-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="grid-bg">
+        <svg xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="1" style="color: rgba(255,255,255,0.04)"/>
+                </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <button class="icon-btn" id="menuToggle" aria-label="Open Menu">
+            <i data-lucide="menu"></i>
+        </button>
+
+        <div class="logo">
+            <div class="logo-icon">O</div>
+            <span class="logo-text">Components Hub</span>
+        </div>
+
+        <a href="https://github.com/your-repo" target="_blank" class="icon-btn" aria-label="GitHub Repository"><i data-lucide="github"></i></a>
+    </header>
+
+    <!-- Sidebar Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar">
+        <button class="close-nav" id="closeBtn">
+            <i data-lucide="x"></i>
+        </button>
+
+        <div class="nav-header">
+            <h2>Orbit Studio</h2>
+            <p>Component Library</p>
+            <div class="accent-bar"></div>
+        </div>
+
+        <ul class="menu-list">
+            <li class="menu-item" style="transition-delay: 0.1s;">
+                <a href="components-hub.html" class="menu-link active">
+                    <div class="icon-wrapper"><i data-lucide="layout-dashboard"></i></div>
+                    <span>Components Hub</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.18s;">
+                <a href="index.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="square-menu"></i></div>
+                    <span>Nav Menu</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.26s;">
+                <a href="orbit-menu.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="orbit"></i></div>
+                    <span>Orbit Menu</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.34s;">
+                <a href="b.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="trending-up"></i></div>
+                    <span>IG Growth Slider</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.42s;">
+                <a href="c.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="sparkles"></i></div>
+                    <span>Three.js Hero</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.50s;">
+                <a href="harsh.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="clapperboard"></i></div>
+                    <span>Cinematographer</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.58s;">
+                <a href="glare-card.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="sparkle"></i></div>
+                    <span>Glare Card</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.66s;">
+                <a href="collection-surfer.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="layers-3"></i></div>
+                    <span>Collection Surfer</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.74s;">
+                <a href="cursor-reveal.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="scan-eye"></i></div>
+                    <span>Cursor Reveal</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.82s;">
+                <a href="scroll-video.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="video"></i></div>
+                    <span>Scroll Video</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 0.90s;">
+                <a href="meridian.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="droplets"></i></div>
+                    <span>Meridian</span>
+                </a>
+            </li>
+<li class="menu-item" style="transition-delay: 0.98s;">
+                <a href="hero-pixel-glitch.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="scan-line"></i></div>
+                    <span>Pixel Glitch Hero</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 1.06s;">
+                <a href="minimalist-hero.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="minimize-2"></i></div>
+                    <span>Minimalist Hero</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 1.14s;">
+                <a href="orbit-robot.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="bot"></i></div>
+                    <span>Orbit Robot</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 1.22s;">
+                <a href="attairestreet-hero.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="sparkles"></i></div>
+                    <span>AttaireStreet</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 1.30s;">
+                <a href="collection-section.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="layers-3"></i></div>
+                    <span>Collections</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 1.38s;">
+                <a href="jewelry-shop-real.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="gem"></i></div>
+                    <span>Jewelry Shop</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 1.46s;">
+                <a href="ember-runner-hero.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="flame"></i></div>
+                    <span>Ember Runner</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 1.54s;">
+                <a href="diagonal-marquee-carousel.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="image"></i></div>
+                    <span>Diagonal Marquee</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 1.62s;">
+                <a href="scroll-morph-hero.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="album"></i></div>
+                    <span>Scroll Morph Hero</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 1.70s;">
+                <a href="bespoke-architecture-hero.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="building-2"></i></div>
+                    <span>Bespoke Architecture</span>
+                </a>
+            </li>
+            <li class="menu-item" style="transition-delay: 1.78s;">
+                <a href="coverflow-carousel.html" class="menu-link">
+                    <div class="icon-wrapper"><i data-lucide="gallery-horizontal-end"></i></div>
+                    <span>3D Coverflow Carousel</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="drag-hint">
+            💡 Swipe left to close
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="dot"></span>
+            22 Components Available
+        </div>
+        <h1>
+            Explore the <span class="gradient-text">Orbit</span><br>
+            Component Library
+        </h1>
+        <p>
+            A curated collection of modern UI components — from animated menus to 3D visualizations. Browse, open, and integrate them into your projects.
+        </p>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="number">20</div>
+                <div class="label">Components</div>
+            </div>
+            <div class="hero-stat">
+                <div class="number">5</div>
+                <div class="label">Technologies</div>
+            </div>
+            <div class="hero-stat">
+                <div class="number">100%</div>
+                <div class="label">Vanilla JS</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Title -->
+    <div class="section-divider">
+        <div class="line"></div>
+    </div>
+
+    <div class="section-title">
+        <h2>All Components</h2>
+        <p>Click any card to open that component in a new page. Use the sidebar to navigate quickly.</p>
+        <div class="section-tabs">
+            <button class="tab-btn active" data-filter="all">All</button>
+            <button class="tab-btn" data-filter="nav">Navigation</button>
+            <button class="tab-btn" data-filter="hero">Hero</button>
+            <button class="tab-btn" data-filter="ui">UI</button>
+        </div>
+    </div>
+
+    <!-- Component Cards Grid -->
+    <div class="cards-grid" id="cardsGrid">
+
+<!-- Card: Orbit Menu -->
+        <div class="component-card" data-category="nav">
+            <div class="card-preview">
+                <iframe src="orbit-menu.html" loading="lazy" title="Orbit Menu Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon cyan"><i data-lucide="orbit"></i></div> -->
+                    <div class="card-title">
+                        <h3>Orbit UI Menu</h3>
+                        <span class="category-tag">Navigation</span>
+                    </div>
+                </div>
+                <p class="desc">A rotating circular orbit menu with nodes positioned perfectly around a center toggle button. Click nodes to reveal info cards with smooth animations.</p>
+                <div class="card-tags">
+                    <span class="tag">CSS Rotations</span>
+                    <span class="tag cyan">Circular Layout</span>
+                    <span class="tag orange">Animations</span>
+                </div>
+                <div class="card-actions">
+                    <a href="orbit-menu.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: IG Growth Slider -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="b.html" loading="lazy" title="IG Growth Slider Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon green"><i data-lucide="trending-up"></i></div> -->
+                    <div class="card-title">
+                        <h3>Instagram Growth Slider</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">A Swiper.js carousel displaying Instagram client growth results with profile cards, stats, gradient covers, and auto-play functionality.</p>
+                <div class="card-tags">
+                    <span class="tag green">Swiper.js</span>
+                    <span class="tag">Carousel</span>
+                    <span class="tag cyan">Responsive</span>
+                </div>
+                <div class="card-actions">
+                    <a href="b.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Three.js Hero -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="c.html" loading="lazy" title="Three.js Hero Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon orange"><i data-lucide="sparkles"></i></div> -->
+                    <div class="card-title">
+                        <h3>Anomalous Matter Hero</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A 3D animated hero section with Three.js shader displacement on an icosahedron. Features mouse-driven lighting and wireframe aesthetics.</p>
+                <div class="card-tags">
+                    <span class="tag orange">Three.js</span>
+                    <span class="tag">WebGL</span>
+                    <span class="tag pink">Shaders</span>
+                </div>
+                <div class="card-actions">
+                    <a href="c.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Cinematographer Portfolio -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="harsh.html" loading="lazy" title="Cinematographer Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon pink"><i data-lucide="clapperboard"></i></div> -->
+                    <div class="card-title">
+                        <h3>Cinematographer Portfolio</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A full cinematic portfolio page with scroll-driven canvas effects, film-strip sprockets, reel HUD, and particle dust motes driven by scroll progress.</p>
+                <div class="card-tags">
+                    <span class="tag pink">Canvas</span>
+                    <span class="tag">Scroll Effects</span>
+                    <span class="tag cyan">Full Page</span>
+                </div>
+                <div class="card-actions">
+                    <a href="harsh.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Menu Demo -->
+        <div class="component-card" data-category="nav">
+            <div class="card-preview">
+                <iframe src="navbar.html" loading="lazy" title="Navbar Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon purple"><i data-lucide="panel-left"></i></div> -->
+                    <div class="card-title">
+                        <h3>Navbar Demo</h3>
+                        <span class="category-tag">Navigation</span>
+                    </div>
+                </div>
+                <p class="desc">Standalone animated sidebar navigation with grid background, theme switching, and staggered menu item animations.</p>
+                <div class="card-tags">
+                    <span class="tag">Sidebar</span>
+                    <span class="tag cyan">Theme Switch</span>
+                    <span class="tag green">Animations</span>
+                </div>
+                <div class="card-actions">
+                    <a href="navbar.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Animated Navigation Menu -->
+        <div class="component-card" data-category="nav">
+            <div class="card-preview">
+                <iframe src="index.html" loading="lazy" title="Animated Navigation Menu Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>Animated Navigation Menu</h3>
+                        <span class="category-tag">Navigation</span>
+                    </div>
+                </div>
+                <p class="desc">An animated navigation menu demo with interactive menu items and transitions.</p>
+                <div class="card-tags">
+                    <span class="tag">Navigation</span>
+                    <span class="tag cyan">Menu</span>
+                    <span class="tag green">Animations</span>
+                </div>
+                <div class="card-actions">
+                    <a href="index.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Animated Brand -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="Animated-brand.html" loading="lazy" title="Animated Brand Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon orange"><i data-lucide="shirt"></i></div> -->
+                    <div class="card-title">
+                        <h3>Cutting Room — Brand</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A bespoke tailoring brand page with rotating image background animation (crossfading through 4 images), scroll-driven scene transitions, and tailored aesthetics.</p>
+                <div class="card-tags">
+                    <span class="tag orange">Image Rotator</span>
+                    <span class="tag">Scroll Effects</span>
+                    <span class="tag cyan">SVG</span>
+                </div>
+                <div class="card-actions">
+                    <a href="Animated-brand.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Glare Card -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="glare-card.html" loading="lazy" title="Glare Card Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon orange"><i data-lucide="sparkle"></i></div> -->
+                    <div class="card-title">
+                        <h3>Glare Card</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">Interactive card with cursor-driven spotlight glare and iridescent foil overlay. 3 variants: icon, full-bleed image, and bottom content — pure CSS/JS.</p>
+                <div class="card-tags">
+                    <span class="tag">CSS Custom Props</span>
+                    <span class="tag orange">Pointer Events</span>
+                    <span class="tag">Blend Modes</span>
+                </div>
+                <div class="card-actions">
+                    <a href="glare-card.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Collection Surfer -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="collection-surfer.html" loading="lazy" title="Collection Surfer Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon cyan"><i data-lucide="layers-3"></i></div> -->
+                    <div class="card-title">
+                        <h3>Collection Surfer</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">A scroll-driven 3D gallery with 16 fashion cards in perspective. Features 3 interaction variants: Magnetic (scale on hover), Uplift (lift on hover), and Simple (no hover effect).</p>
+                <div class="card-tags">
+                    <span class="tag">3D CSS</span>
+                    <span class="tag cyan">Scroll Drive</span>
+                    <span class="tag orange">Spring Physics</span>
+                </div>
+                <div class="card-actions">
+                    <a href="collection-surfer.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Cursor Reveal -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="cursor-reveal.html" loading="lazy" title="Cursor Reveal Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon pink"><i data-lucide="scan-eye"></i></div> -->
+                    <div class="card-title">
+                        <h3>Cursor Reveal Hero</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A desert night-sky reveal effect powered by cursor tracking. Uses CSS mask-image and @property to animate a circular aperture that peels back the top layer.</p>
+                <div class="card-tags">
+                    <span class="tag pink">CSS Masks</span>
+                    <span class="tag">Pointer Tracking</span>
+                    <span class="tag cyan">@property</span>
+                </div>
+                <div class="card-actions">
+                    <a href="cursor-reveal.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Scroll Video -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="scroll-video.html" loading="lazy" title="Scroll Video Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon orange"><i data-lucide="video"></i></div> -->
+                    <div class="card-title">
+                        <h3>Scroll-Controlled Video</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A full-screen video scrubbed by scroll progress. Features a progress bar, scroll hint, and content overlays synced to playback position.</p>
+                <div class="card-tags">
+                    <span class="tag orange">Video</span>
+                    <span class="tag">Scroll Sync</span>
+                    <span class="tag cyan">Full Screen</span>
+                </div>
+                <div class="card-actions">
+                    <a href="scroll-video.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Meridian -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="meridian.html" loading="lazy" title="Meridian Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon cyan"><i data-lucide="droplets"></i></div> -->
+                    <div class="card-title">
+                        <h3>Meridian — Vivéa</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A premium hydration brand page with scroll-driven floating product animation, anatomical specs section, and a sleek dark-themed hero with motion design.</p>
+                <div class="card-tags">
+                    <span class="tag cyan">Scroll Animation</span>
+                    <span class="tag">Product Page</span>
+                    <span class="tag orange">Motion Design</span>
+                </div>
+                <div class="card-actions">
+                    <a href="meridian.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Pixel Glitch Hero -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="hero-pixel-glitch.html" loading="lazy" title="Pixel Glitch Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon orange"><i data-lucide="scan-line"></i></div> -->
+                    <div class="card-title">
+                        <h3>Spider-Man Pixel Glitch</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A canvas-based hero with a half-face glitch effect. The left half shows Spider-Man in full color, while the right half is consumed by animated pixel-sorted corruption with red/blue glitch aesthetics.</p>
+                <div class="card-tags">
+                    <span class="tag orange">Canvas</span>
+                    <span class="tag">Pixel Sorting</span>
+                    <span class="tag pink">Glitch Effect</span>
+                </div>
+                <div class="card-actions">
+                    <a href="hero-pixel-glitch.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+<!-- Card: Minimalist Hero -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="minimalist-hero.html" loading="lazy" title="Minimalist Hero Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon green"><i data-lucide="minimize-2"></i></div> -->
+                    <div class="card-title">
+                        <h3>mnmlst. — Minimalist Hero</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A clean, minimalist hero section with a yellow circular backdrop, profile image, animated reveal effects, and responsive three-column grid layout with header and footer.</p>
+                <div class="card-tags">
+                    <span class="tag green">CSS Animations</span>
+                    <span class="tag">Minimalist</span>
+                    <span class="tag cyan">Responsive</span>
+                </div>
+                <div class="card-actions">
+                    <a href="minimalist-hero.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Orbit Robot -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="orbit-robot.html" loading="lazy" title="Orbit Robot Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon purple"><i data-lucide="bot"></i></div> -->
+                    <div class="card-title">
+                        <h3>Orbit — Desk Companion</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">A delightful little desk robot with CSS-only 3D design and mouse-driven eye tracking. The robot head follows your cursor with natural head rotation and pupil movement.</p>
+                <div class="card-tags">
+                    <span class="tag">CSS 3D</span>
+                    <span class="tag purple">Mouse Tracking</span>
+                    <span class="tag cyan">Interactive</span>
+                </div>
+                <div class="card-actions">
+                    <a href="orbit-robot.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+<!-- Card: AttaireStreet Hero -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="attairestreet-hero.html" loading="lazy" title="AttaireStreet Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon green"><i data-lucide="sparkles"></i></div> -->
+                    <div class="card-title">
+                        <h3>AttaireStreet — Handmade Jewellery</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A handcrafted jewellery &amp; resin art brand hero page with a resin swirl visual, animated stats, floating badges, and artisanal brand storytelling.</p>
+                <div class="card-tags">
+                    <span class="tag green">CSS Art</span>
+                    <span class="tag">Brand Hero</span>
+                    <span class="tag cyan">Animations</span>
+                </div>
+                <div class="card-actions">
+                    <a href="attairestreet-hero.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Collection Section -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="collection-section.html" loading="lazy" title="Collection Section Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon cyan"><i data-lucide="layers-3"></i></div> -->
+                    <div class="card-title">
+                        <h3>Shop by Collection</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A jewellery collection grid with gold resin-pour hover effect, engraved dot and swirl textures for jewellery and resin tiles, and responsive CSS grid layout.</p>
+                <div class="card-tags">
+                    <span class="tag">CSS Grid</span>
+                    <span class="tag cyan">Hover Effects</span>
+                    <span class="tag orange">Textures</span>
+                </div>
+                <div class="card-actions">
+                    <a href="collection-section.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Jewelry Shop -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="jewelry-shop-real.html" loading="lazy" title="Jewelry Shop Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon orange"><i data-lucide="gem"></i></div> -->
+                    <div class="card-title">
+                        <h3>AUVR<em>AI</em> — Jewelry Shop</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">A fine jewelry atelier page with a try-on fitting room. Browse rings, necklaces, earrings, and bracelets — each piece shown on a real model with crossfade preview and bag functionality.</p>
+                <div class="card-tags">
+                    <span class="tag orange">E-Commerce</span>
+                    <span class="tag">Crossfade</span>
+                    <span class="tag cyan">Interactive</span>
+                </div>
+                <div class="card-actions">
+                    <a href="jewelry-shop-real.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Ember Runner Hero -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="ember-runner-hero.html" loading="lazy" title="Ember Runner Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <!-- <div class="card-icon orange"><i data-lucide="flame"></i></div> -->
+                    <div class="card-title">
+                        <h3>EMBER RUNNER — Limited Drop</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A fiery sneaker drop hero with scrolling marquee strips, floating 3D product display with mouse parallax, grain texture overlay, and a bold dark aesthetic with red accents.</p>
+                <div class="card-tags">
+                    <span class="tag orange">CSS Art</span>
+                    <span class="tag">Hero</span>
+                    <span class="tag cyan">Animations</span>
+                </div>
+                <div class="card-actions">
+                    <a href="ember-runner-hero.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Diagonal Marquee -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="diagonal-marquee-carousel.html" loading="lazy" title="Diagonal Marquee Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>Diagonal Marquee</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">An infinite-scrolling marquee of images displayed at a diagonal angle. The animation pauses on hover, and rows scroll in alternating directions.</p>
+                <div class="card-tags">
+                    <span class="tag">CSS Animations</span>
+                    <span class="tag cyan">Marquee</span>
+                    <span class="tag orange">Infinite Scroll</span>
+                </div>
+                <div class="card-actions">
+                    <a href="diagonal-marquee-carousel.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Scroll Morph Hero -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="scroll-morph-hero.html" loading="lazy" title="Scroll Morph Hero Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>Scroll Morph Hero</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A hero section where scattered cards morph into a circle and then a bottom arc based on scroll position. Features a popup modal on card click.</p>
+                <div class="card-tags">
+                    <span class="tag cyan">Scroll Effects</span>
+                    <span class="tag orange">Spring Physics</span>
+                    <span class="tag">Animations</span>
+                </div>
+                <div class="card-actions">
+                    <a href="scroll-morph-hero.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Bespoke Architecture Hero -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="bespoke-architecture-hero.html" loading="lazy" title="Bespoke Architecture Hero Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>Bespoke Architecture Hero</h3>
+                        <span class="category-tag">Hero Section</span>
+                    </div>
+                </div>
+                <p class="desc">A refined architecture studio hero with a rotating project showcase, editorial typography, and a polished full-screen presentation.</p>
+                <div class="card-tags">
+                    <span class="tag cyan">Architecture</span>
+                    <span class="tag orange">Image Carousel</span>
+                    <span class="tag">Responsive</span>
+                </div>
+                <div class="card-actions">
+                    <a href="bespoke-architecture-hero.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: 3D Coverflow Carousel -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="coverflow-carousel.html" loading="lazy" title="3D Coverflow Carousel Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>3D Coverflow Carousel</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">A cinematic 3D coverflow carousel with layered project cards, immersive background imagery, and smooth interactive transitions.</p>
+                <div class="card-tags">
+                    <span class="tag cyan">3D Effects</span>
+                    <span class="tag orange">Carousel</span>
+                    <span class="tag">Interactions</span>
+                </div>
+                <div class="card-actions">
+                    <a href="coverflow-carousel.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Attaire Street Craft & Story -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="a.html" loading="lazy" title="Attaire Street Craft and Story Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>Attaire Street — Craft &amp; Story</h3>
+                        <span class="category-tag">Brand Page</span>
+                    </div>
+                </div>
+                <p class="desc">A handmade jewellery brand page introducing its craft, resin pendants, traditional jewellery, and modern designs.</p>
+                <div class="card-tags">
+                    <span class="tag orange">Handmade</span>
+                    <span class="tag">Jewellery</span>
+                    <span class="tag cyan">Brand Story</span>
+                </div>
+                <div class="card-actions">
+                    <a href="a.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Attaire Street About Us -->
+        <div class="component-card" data-category="hero">
+            <div class="card-preview">
+                <iframe src="about-us.html" loading="lazy" title="Attaire Street About Us Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>About Us — Attaire Street</h3>
+                        <span class="category-tag">Brand Page</span>
+                    </div>
+                </div>
+                <p class="desc">An introduction to Attaire Street and its collection of handcrafted resin, traditional, and contemporary jewellery.</p>
+                <div class="card-tags">
+                    <span class="tag orange">Handmade</span>
+                    <span class="tag">About Us</span>
+                    <span class="tag cyan">Jewellery</span>
+                </div>
+                <div class="card-actions">
+                    <a href="about-us.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Auto Image Slider -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="auto-image-slider.html" loading="lazy" title="Auto Image Slider Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>Auto Image Slider</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">An image carousel with automatic playback, navigation controls, pagination dots, and pause-on-hover behavior.</p>
+                <div class="card-tags">
+                    <span class="tag cyan">Image Carousel</span>
+                    <span class="tag">Auto-play</span>
+                    <span class="tag orange">Interactive</span>
+                </div>
+                <div class="card-actions">
+                    <a href="auto-image-slider.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Earth Kingdom Why Choose -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="earth-kingdom-why-choose.html" loading="lazy" title="Earth Kingdom Product Showcase Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>Earth Kingdom — Product Showcase</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">A product feature showcase with an interactive product carousel and supporting feature details.</p>
+                <div class="card-tags">
+                    <span class="tag green">Product Showcase</span>
+                    <span class="tag cyan">Carousel</span>
+                    <span class="tag">Feature Highlights</span>
+                </div>
+                <div class="card-actions">
+                    <a href="earth-kingdom-why-choose.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Home Edit Shelf Slider -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="home-decor-slider.html" loading="lazy" title="Home Edit Shelf Slider Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>The Home Edit — Shelf Slider</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">A home decor product slider with shelf-style cards and a scroll-responsive presentation.</p>
+                <div class="card-tags">
+                    <span class="tag orange">Home Decor</span>
+                    <span class="tag cyan">Product Slider</span>
+                    <span class="tag">Scroll Effects</span>
+                </div>
+                <div class="card-actions">
+                    <a href="home-decor-slider.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Attaire Street Jewellery Store -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="test-2.html" loading="lazy" title="Attaire Street Jewellery Store Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>Attaire Street — Gem &amp; Stone</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">A jewellery storefront for handmade gemstone and resin art, featuring an automatically advancing product showcase.</p>
+                <div class="card-tags">
+                    <span class="tag orange">E-Commerce</span>
+                    <span class="tag">Handmade Jewellery</span>
+                    <span class="tag cyan">Product Carousel</span>
+                </div>
+                <div class="card-actions">
+                    <a href="test-2.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: High Demand Products -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="test.html" loading="lazy" title="High Demand Products Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>High Demand Products</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">A featured products storefront with product cards for headphones, a smartwatch, running shoes, and sunglasses.</p>
+                <div class="card-tags">
+                    <span class="tag orange">E-Commerce</span>
+                    <span class="tag cyan">Product Showcase</span>
+                    <span class="tag">Product Cards</span>
+                </div>
+                <div class="card-actions">
+                    <a href="test.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card: Why Choose Vevly -->
+        <div class="component-card" data-category="ui">
+            <div class="card-preview">
+                <iframe src="why-choose-vevly.html" loading="lazy" title="Why Choose Vevly Preview"></iframe>
+                <div class="preview-label">● Live Preview</div>
+            </div>
+            <div class="card-body">
+                <div class="card-header">
+                    <div class="card-title">
+                        <h3>Why Choose Vevly</h3>
+                        <span class="category-tag">UI Component</span>
+                    </div>
+                </div>
+                <p class="desc">An interactive product feature section presenting five Vevly formulas and their benefits.</p>
+                <div class="card-tags">
+                    <span class="tag green">Product Features</span>
+                    <span class="tag cyan">Interactive</span>
+                    <span class="tag">Benefits Showcase</span>
+                </div>
+                <div class="card-actions">
+                    <a href="why-choose-vevly.html" class="btn-primary" target="_blank">
+                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                        Open Component
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="hub-footer">
+        <p>Orbit Components Hub — A curated collection of UI components</p>
+        <div class="links">
+            <a href="index.html">Nav Menu</a>
+            <a href="orbit-menu.html">Orbit Menu</a>
+            <a href="b.html">IG Slider</a>
+            <a href="c.html">Three.js Hero</a>
+            <a href="harsh.html">Cinematographer</a>
+            <a href="glare-card.html">Glare Card</a>
+            <a href="collection-surfer.html">Collection Surfer</a>
+            <a href="cursor-reveal.html">Cursor Reveal</a>
+            <a href="scroll-video.html">Scroll Video</a>
+<a href="hero-pixel-glitch.html">Pixel Glitch</a>
+            <a href="minimalist-hero.html">Minimalist Hero</a>
+            <a href="orbit-robot.html">Orbit Robot</a>
+<a href="attairestreet-hero.html">AttaireStreet</a>
+            <a href="collection-section.html">Collections</a>
+            <a href="jewelry-shop-real.html">Jewelry Shop</a>
+            <a href="ember-runner-hero.html">Ember Runner</a>
+            <a href="diagonal-marquee-carousel.html">Diagonal Marquee</a>
+            <a href="scroll-morph-hero.html">Scroll Morph</a>
+            <a href="bespoke-architecture-hero.html">Bespoke Architecture</a>
+            <a href="coverflow-carousel.html">3D Coverflow</a>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // --- Sidebar Toggle ---
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const menuToggle = document.getElementById('menuToggle');
+        const closeBtn = document.getElementById('closeBtn');
+
+        const toggleMenu = (forceState) => {
+            const isOpen = forceState !== undefined ? forceState : !sidebar.classList.contains('active');
+            sidebar.classList.toggle('active', isOpen);
+            overlay.classList.toggle('active', isOpen);
+        };
+        menuToggle.addEventListener('click', () => toggleMenu(true));
+        closeBtn.addEventListener('click', () => toggleMenu(false));
+        overlay.addEventListener('click', () => toggleMenu(false));
+
+        // --- Swipe to close ---
+        let touchStartX = 0;
+        sidebar.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+        sidebar.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 70) toggleMenu(false);
+        });
+
+        // --- Custom Cursor ---
+        const cursorDot = document.getElementById('cursorDot');
+        const cursorRing = document.getElementById('cursorRing');
+        let mouseX = 0, mouseY = 0;
+        let ringX = 0, ringY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            cursorDot.style.left = mouseX + 'px';
+            cursorDot.style.top = mouseY + 'px';
+        });
+
+        function animateRing() {
+            ringX += (mouseX - ringX) * 0.12;
+            ringY += (mouseY - ringY) * 0.12;
+            cursorRing.style.left = ringX + 'px';
+            cursorRing.style.top = ringY + 'px';
+            requestAnimationFrame(animateRing);
+        }
+        animateRing();
+
+        // Hover effect on interactive elements
+        document.querySelectorAll('a, button, .component-card, .tab-btn, .menu-link, .icon-btn, .btn-primary, .btn-secondary').forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorDot.classList.add('hover');
+                cursorRing.classList.add('hover');
+            });
+            el.addEventListener('mouseleave', () => {
+                cursorDot.classList.remove('hover');
+                cursorRing.classList.remove('hover');
+            });
+        });
+
+        // --- Lazy-load iframes for performance ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const iframe = entry.target;
+                    if (iframe.dataset.src) {
+                        iframe.src = iframe.dataset.src;
+                        iframe.removeAttribute('data-src');
+                    }
+                    observer.unobserve(iframe);
+                }
+            });
+        }, { rootMargin: '200px' });
+
+        document.querySelectorAll('.card-preview iframe').forEach(iframe => {
+            if (iframe.getAttribute('loading') === 'lazy') {
+                const src = iframe.src;
+                iframe.dataset.src = src;
+                iframe.src = '';
+                observer.observe(iframe);
+            }
+        });
+
+        // --- Tab Filtering ---
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const cards = document.querySelectorAll('.component-card');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const filter = btn.dataset.filter;
+
+                cards.forEach(card => {
+                    if (filter === 'all' || card.dataset.category === filter) {
+                        card.style.display = 'flex';
+                        card.style.animation = 'fadeInUp 0.4s ease-out forwards';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

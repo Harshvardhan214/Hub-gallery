@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Auto Image Slider</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #111;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  .slider {
+    position: relative;
+    width: 90vw;
+    max-width: 800px;
+    height: 450px;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+
+  .slides {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s ease-in-out;
+  }
+
+  .slide {
+    min-width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 24px;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+  }
+
+  .nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.4);
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    z-index: 10;
+  }
+
+  .nav-btn:hover { background: rgba(0,0,0,0.7); }
+  .prev { left: 16px; }
+  .next { right: 16px; }
+
+  .dots {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }
+
+  .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .dot.active {
+    background: #fff;
+    transform: scale(1.2);
+  }
+</style>
+</head>
+<body>
+
+<div class="slider" id="slider">
+  <div class="slides" id="slides">
+    <div class="slide"><img src="https://picsum.photos/id/1015/800/450" alt="Mountain river"><div class="caption">Mountain river valley</div></div>
+    <div class="slide"><img src="https://picsum.photos/id/1043/800/450" alt="Desert road"><div class="caption">Open desert road</div></div>
+    <div class="slide"><img src="https://picsum.photos/id/1039/800/450" alt="Forest lake"><div class="caption">Quiet forest lake</div></div>
+    <div class="slide"><img src="https://picsum.photos/id/1050/800/450" alt="Coastal cliff"><div class="caption">Coastal cliffside</div></div>
+  </div>
+
+  <button class="nav-btn prev" id="prevBtn">&#10094;</button>
+  <button class="nav-btn next" id="nextBtn">&#10095;</button>
+
+  <div class="dots" id="dots"></div>
+</div>
+
+<script>
+  const slidesEl = document.getElementById('slides');
+  const slideEls = document.querySelectorAll('.slide');
+  const dotsEl = document.getElementById('dots');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const slider = document.getElementById('slider');
+
+  const total = slideEls.length;
+  let current = 0;
+  let timer;
+  const AUTO_DELAY = 3500;
+
+  // build dots
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(dot);
+  }
+  const dotEls = document.querySelectorAll('.dot');
+
+  function update() {
+    slidesEl.style.transform = `translateX(-${current * 100}%)`;
+    dotEls.forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  function goTo(index) {
+    current = (index + total) % total;
+    update();
+    resetTimer();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  function startTimer() {
+    timer = setInterval(next, AUTO_DELAY);
+  }
+
+  function resetTimer() {
+    clearInterval(timer);
+    startTimer();
+  }
+
+  nextBtn.addEventListener('click', next);
+  prevBtn.addEventListener('click', prev);
+
+  // pause on hover
+  slider.addEventListener('mouseenter', () => clearInterval(timer));
+  slider.addEventListener('mouseleave', startTimer);
+
+  startTimer();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1239 @@
+ <!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>Bespoke Architecture Studio</title>
+
+<link
+  rel="preconnect"
+  href="https://fonts.googleapis.com"
+>
+
+<link
+  rel="preconnect"
+  href="https://fonts.gstatic.com"
+  crossorigin
+>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap"
+  rel="stylesheet"
+>
+
+
+<style>
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+:root {
+
+  --ink: #151515;
+
+  --sub: #6b6b6b;
+
+  --bg: #ffffff;
+
+  --card-width: 220px;
+
+  --card-height: 300px;
+
+}
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+
+html,
+body {
+
+  margin: 0;
+
+  padding: 0;
+
+  width: 100%;
+
+  background: var(--bg);
+
+  color: var(--ink);
+
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+
+}
+
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero {
+
+  width: 100%;
+
+  padding:
+    65px 20px 0;
+
+  text-align: center;
+
+}
+
+
+.hero h1 {
+
+  margin: 0;
+
+  font-size:
+    clamp(
+      2.3rem,
+      5.5vw,
+      3.7rem
+    );
+
+  line-height: 1.02;
+
+  letter-spacing: -0.045em;
+
+  font-weight: 800;
+
+}
+
+
+.hero .subtitle {
+
+  max-width: 500px;
+
+  margin:
+    18px auto 0;
+
+  color: var(--sub);
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+  font-weight: 500;
+
+}
+
+
+/* =====================================================
+   GALLERY
+===================================================== */
+
+.gallery {
+
+  position: relative;
+
+  width: 100%;
+
+  height: 390px;
+
+  margin-top: 35px;
+
+  overflow: hidden;
+
+  cursor: grab;
+
+  user-select: none;
+
+  -webkit-user-select: none;
+
+  /*
+    THIS IS THE IMPORTANT PART
+
+    Creates the 3D depth
+  */
+
+  perspective: 1400px;
+
+  perspective-origin: center center;
+
+  touch-action: pan-y;
+
+}
+
+
+.gallery.dragging {
+
+  cursor: grabbing;
+
+}
+
+
+/* =====================================================
+   TRACK
+===================================================== */
+
+.track {
+
+  position: absolute;
+
+  left: 50%;
+
+  top: 0;
+
+  width: 0;
+
+  height: 100%;
+
+  /*
+    Preserve 3D positions
+  */
+
+  transform-style: preserve-3d;
+
+}
+
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.card {
+
+  position: absolute;
+
+  left: 0;
+
+  top: 42px;
+
+  width: var(--card-width);
+
+  height: var(--card-height);
+
+  margin-left:
+    calc(var(--card-width) / -2);
+
+  overflow: hidden;
+
+  background: #eee;
+
+  border-radius: 2px;
+
+  /*
+    Important:
+    do NOT use normal rotate()
+  */
+
+  transform-style: preserve-3d;
+
+  backface-visibility: hidden;
+
+  will-change:
+    transform,
+    opacity;
+
+  box-shadow:
+    0 8px 24px
+    rgba(0,0,0,0.10);
+
+  pointer-events: none;
+
+}
+
+
+.card img {
+
+  width: 100%;
+
+  height: 100%;
+
+  display: block;
+
+  object-fit: cover;
+
+  pointer-events: none;
+
+  user-select: none;
+
+  -webkit-user-drag: none;
+
+}
+
+
+/* =====================================================
+   BELOW CONTENT
+===================================================== */
+
+.below {
+
+  max-width: 650px;
+
+  margin:
+    0 auto;
+
+  padding:
+    0 20px;
+
+  text-align: center;
+
+}
+
+
+.below p {
+
+  margin: 0;
+
+  color: #3c3c3c;
+
+  font-size: 13px;
+
+  line-height: 1.55;
+
+  font-weight: 500;
+
+}
+
+
+.cta {
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 28px;
+
+  margin-top: 20px;
+
+  padding-bottom: 70px;
+
+}
+
+
+.cta a {
+
+  color: var(--ink);
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  text-decoration: none;
+
+  border-bottom:
+    1px solid var(--ink);
+
+  padding-bottom: 3px;
+
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 1000px) {
+
+  :root {
+
+    --card-width: 190px;
+
+    --card-height: 260px;
+
+  }
+
+
+  .gallery {
+
+    height: 340px;
+
+    perspective: 1100px;
+
+  }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 650px) {
+
+  :root {
+
+    --card-width: 145px;
+
+    --card-height: 205px;
+
+  }
+
+
+  .hero {
+
+    padding-top: 45px;
+
+  }
+
+
+  .hero h1 {
+
+    font-size: 2.25rem;
+
+  }
+
+
+  .hero .subtitle {
+
+    font-size: 12px;
+
+  }
+
+
+  .gallery {
+
+    height: 275px;
+
+    margin-top: 25px;
+
+    perspective: 800px;
+
+  }
+
+
+  .card {
+
+    top: 30px;
+
+  }
+
+
+  .cta {
+
+    gap: 20px;
+
+    padding-bottom: 45px;
+
+  }
+
+}
+
+
+/* =====================================================
+   SMALL MOBILE
+===================================================== */
+
+@media (max-width: 400px) {
+
+  :root {
+
+    --card-width: 125px;
+
+    --card-height: 180px;
+
+  }
+
+
+  .gallery {
+
+    height: 245px;
+
+    perspective: 700px;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
+<section class="hero">
+
+  <h1>
+    Bespoke Architecture<br>
+    Studio
+  </h1>
+
+  <p class="subtitle">
+    The building you deserve has never been built before.
+  </p>
+
+</section>
+
+
+
+<!-- =====================================================
+     3D CAROUSEL
+===================================================== -->
+
+<div
+  class="gallery"
+  id="gallery"
+>
+
+  <div
+    class="track"
+    id="track"
+  ></div>
+
+</div>
+
+
+
+<!-- =====================================================
+     DESCRIPTION
+===================================================== -->
+
+<div class="below">
+
+  <p>
+    We design private residences and commercial spaces
+    from a blank page. No templates, no repeated
+    floorplans, no shortcuts.
+  </p>
+
+
+  <div class="cta">
+
+    <a href="#">
+      Book a meeting
+    </a>
+
+    <a href="#">
+      See Projects
+    </a>
+
+  </div>
+
+</div>
+
+
+
+<script>
+
+(function () {
+
+
+/* =====================================================
+   IMAGES
+===================================================== */
+
+const images = [
+
+  "https://images.unsplash.com/photo-1746549859958-faa2558a765c?w=800&q=80&auto=format&fit=crop",
+
+  "https://images.unsplash.com/photo-1752407828784-67a92663c866?w=800&q=80&auto=format&fit=crop",
+
+  "https://images.unsplash.com/photo-1749930206000-179d0b85aa7e?w=800&q=80&auto=format&fit=crop",
+
+  "https://images.unsplash.com/photo-1764099362403-16ee561b079a?w=800&q=80&auto=format&fit=crop",
+
+  "https://images.unsplash.com/photo-1768578927229-93ec4150fe9a?w=800&q=80&auto=format&fit=crop",
+
+  "https://images.unsplash.com/photo-1764526624453-db32c24eca55?w=800&q=80&auto=format&fit=crop"
+
+];
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const gallery =
+  document.getElementById("gallery");
+
+const track =
+  document.getElementById("track");
+
+const total =
+  images.length;
+
+
+/* =====================================================
+   CREATE CARDS
+===================================================== */
+
+const cards =
+  images.map(
+    (src, index) => {
+
+      const card =
+        document.createElement("div");
+
+      card.className =
+        "card";
+
+
+      const image =
+        document.createElement("img");
+
+
+      image.src =
+        src;
+
+
+      image.alt =
+        "Architecture project " +
+        (index + 1);
+
+
+      image.draggable =
+        false;
+
+
+      image.loading =
+        index < 5
+          ? "eager"
+          : "lazy";
+
+
+      card.appendChild(image);
+
+      track.appendChild(card);
+
+
+      return card;
+
+    }
+  );
+
+
+/* =====================================================
+   3D CAROUSEL SETTINGS
+===================================================== */
+
+
+/*
+   Distance between cards.
+
+   Smaller = cards closer together.
+*/
+
+const CARD_GAP = 205;
+
+
+/*
+   Radius of the invisible
+   horizontal cylinder.
+
+   Larger = flatter curve.
+   Smaller = stronger curve.
+*/
+
+const CYLINDER_RADIUS = 900;
+
+
+/*
+   Angle between cards.
+
+   This controls the 3D
+   rotation of side cards.
+*/
+
+const ANGLE_STEP = 11;
+
+
+/*
+   How many cards are visible.
+*/
+
+const VISIBLE = 3.5;
+
+
+/*
+   Current position.
+
+   Decimal values are allowed
+   while dragging.
+*/
+
+let position = 0;
+
+
+/* =====================================================
+   DRAG VARIABLES
+===================================================== */
+
+let dragging = false;
+
+let startX = 0;
+
+let startPosition = 0;
+
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+let animationFrame = null;
+
+
+/* =====================================================
+   WRAP
+===================================================== */
+
+function wrap(value) {
+
+  while (value > total / 2) {
+
+    value -= total;
+
+  }
+
+
+  while (value < -total / 2) {
+
+    value += total;
+
+  }
+
+
+  return value;
+
+}
+
+
+/* =====================================================
+   RENDER
+===================================================== */
+
+function render() {
+
+
+  cards.forEach(
+    (card, index) => {
+
+
+      /*
+       * Distance from center
+       */
+
+      const delta =
+        wrap(
+          index - position
+        );
+
+
+      const distance =
+        Math.abs(delta);
+
+
+      /*
+       * Hide far-away cards
+       */
+
+      if (
+        distance > VISIBLE
+      ) {
+
+        card.style.opacity = "0";
+
+        card.style.pointerEvents =
+          "none";
+
+        return;
+
+      }
+
+
+      /*
+       * ==========================================
+       * HORIZONTAL CYLINDER
+       * ==========================================
+       *
+       * Each card sits on an invisible
+       * horizontal cylinder.
+       *
+       * Center:
+       *
+       *       [ CARD ]
+       *
+       * Side:
+       *
+       *     /[CARD]
+       *
+       * This creates the trapezoidal
+       * perspective seen in the reference.
+       */
+
+
+      const angle =
+        delta *
+        ANGLE_STEP;
+
+
+      const radians =
+        angle *
+        Math.PI /
+        180;
+
+
+      /*
+       * X position on cylinder
+       */
+
+      const x =
+        CYLINDER_RADIUS *
+        Math.sin(
+          radians
+        );
+
+
+      /*
+       * Z position on cylinder
+       *
+       * Center is closest.
+       */
+
+      const z =
+        CYLINDER_RADIUS *
+        (
+          Math.cos(
+            radians
+          ) - 1
+        );
+
+
+      /*
+       * Slight vertical
+       * correction.
+       *
+       * Outer cards sit
+       * a little higher.
+       */
+
+      const y =
+        -(
+          Math.abs(delta) *
+          2.5
+        );
+
+
+      /*
+       * ==========================================
+       * ROTATE Y
+       * ==========================================
+       *
+       * THIS is what was missing
+       * from the previous version.
+       */
+
+      const rotateY =
+        -angle;
+
+
+      /*
+       * ==========================================
+       * SCALE
+       * ==========================================
+       */
+
+      const scale =
+        1 -
+        (
+          Math.min(
+            distance,
+            3
+          ) *
+          0.025
+        );
+
+
+      /*
+       * ==========================================
+       * OPACITY
+       * ==========================================
+       */
+
+      const opacity =
+        Math.max(
+          0.65,
+          1 -
+          distance * 0.08
+        );
+
+
+      /*
+       * ==========================================
+       * Z-INDEX
+       * ==========================================
+       */
+
+      const zIndex =
+        100 -
+        Math.round(
+          distance * 10
+        );
+
+
+      /*
+       * ==========================================
+       * TRANSFORM
+       * ==========================================
+       */
+
+      card.style.transform =
+
+        `
+        translate3d(
+          ${x}px,
+          ${y}px,
+          ${z}px
+        )
+        rotateY(
+          ${rotateY}deg
+        )
+        scale(
+          ${scale}
+        )
+        `;
+
+
+      card.style.opacity =
+        opacity;
+
+
+      card.style.zIndex =
+        zIndex;
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   SNAP ANIMATION
+===================================================== */
+
+function animateTo(target) {
+
+
+  if (animationFrame) {
+
+    cancelAnimationFrame(
+      animationFrame
+    );
+
+  }
+
+
+  const start =
+    position;
+
+
+  const difference =
+    target - start;
+
+
+  const duration =
+    450;
+
+
+  const startTime =
+    performance.now();
+
+
+  function animate(now) {
+
+
+    const progress =
+      Math.min(
+        1,
+        (
+          now -
+          startTime
+        ) /
+        duration
+      );
+
+
+    /*
+     * Smooth ease-out
+     */
+
+    const eased =
+      1 -
+      Math.pow(
+        1 - progress,
+        3
+      );
+
+
+    position =
+      start +
+      difference *
+      eased;
+
+
+    render();
+
+
+    if (
+      progress < 1
+    ) {
+
+      animationFrame =
+        requestAnimationFrame(
+          animate
+        );
+
+    }
+
+    else {
+
+      position =
+        target;
+
+      render();
+
+      animationFrame =
+        null;
+
+    }
+
+  }
+
+
+  animationFrame =
+    requestAnimationFrame(
+      animate
+    );
+
+}
+
+
+/* =====================================================
+   POINTER DOWN
+===================================================== */
+
+function pointerDown(event) {
+
+
+  dragging = true;
+
+
+  if (animationFrame) {
+
+    cancelAnimationFrame(
+      animationFrame
+    );
+
+    animationFrame =
+      null;
+
+  }
+
+
+  startX =
+    event.clientX;
+
+
+  startPosition =
+    position;
+
+
+  gallery.classList.add(
+    "dragging"
+  );
+
+
+  gallery.setPointerCapture(
+    event.pointerId
+  );
+
+}
+
+
+/* =====================================================
+   POINTER MOVE
+===================================================== */
+
+function pointerMove(event) {
+
+
+  if (!dragging) {
+
+    return;
+
+  }
+
+
+  const dx =
+    event.clientX -
+    startX;
+
+
+  /*
+   * Drag sensitivity
+   */
+
+  position =
+    startPosition -
+    (
+      dx / CARD_GAP
+    );
+
+
+  render();
+
+}
+
+
+/* =====================================================
+   POINTER UP
+===================================================== */
+
+function pointerUp(event) {
+
+
+  if (!dragging) {
+
+    return;
+
+  }
+
+
+  dragging = false;
+
+
+  gallery.classList.remove(
+    "dragging"
+  );
+
+
+  /*
+   * Snap to nearest card.
+   */
+
+  const target =
+    Math.round(
+      position
+    );
+
+
+  animateTo(
+    target
+  );
+
+}
+
+
+/* =====================================================
+   EVENTS
+===================================================== */
+
+gallery.addEventListener(
+  "pointerdown",
+  pointerDown
+);
+
+
+window.addEventListener(
+  "pointermove",
+  pointerMove
+);
+
+
+window.addEventListener(
+  "pointerup",
+  pointerUp
+);
+
+
+window.addEventListener(
+  "pointercancel",
+  pointerUp
+);
+
+
+/* =====================================================
+   WHEEL
+===================================================== */
+
+gallery.addEventListener(
+  "wheel",
+  function (event) {
+
+    event.preventDefault();
+
+
+    const movement =
+      Math.abs(
+        event.deltaX
+      ) >
+      Math.abs(
+        event.deltaY
+      )
+        ? event.deltaX
+        : event.deltaY;
+
+
+    position +=
+      movement > 0
+        ? 0.15
+        : -0.15;
+
+
+    render();
+
+  },
+  {
+    passive: false
+  }
+);
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+window.addEventListener(
+  "resize",
+  function () {
+
+    render();
+
+  }
+);
+
+
+/* =====================================================
+   INITIAL
+===================================================== */
+
+render();
+
+
+})();
+
+</script>
+
+
+</body>
+
+</html>
